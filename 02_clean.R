@@ -19,6 +19,7 @@ colName<-PlotInfo[,1] %>%
   unlist()
 
 #Peel off top of file which has general wetland info
+#First record contains headers
 WetInfo<-PlotInfo[1:8,-1] %>%
   t() %>%
   as.data.frame()
@@ -28,7 +29,7 @@ WetInfo <- tibble::rownames_to_column(WetInfo, "FID")
 
 #split sampled wetlands into in wetland plots ie data.frame is by plots not wetlands
 # 5 possible sub-plots
-#First Transpose
+#First Transpose entire data set
 WetPlots<-PlotInfo[9:79,-1] %>%
   t() %>%
   as.data.frame()

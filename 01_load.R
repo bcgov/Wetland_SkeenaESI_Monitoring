@@ -16,7 +16,7 @@ source("header.R")
 WetPlots<- excel_sheets(file.path(WetMonDir,'Tier2Data_FieldForms_PlotAndVeg_DoneMA.xlsx'))
 #First sheet is the plot info - has to make up column  names for some throwing a warning
 PlotInfo<-read_excel(file.path(WetMonDir,'Tier2Data_FieldForms_PlotAndVeg_DoneMA.xlsx'),
-                     sheet = WetPlots[1],.name_repair)
+                     sheet = WetPlots[1])
 #Subsequent sheets are veg plots
 x<-WetPlots[2:length(WetPlots)]
 WetList<-lapply(x,function(x) {

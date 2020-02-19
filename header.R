@@ -11,6 +11,7 @@ library(rio)
 library(WriteXLS)
 library(ggplot2)
 library(readxl)
+library(stringr)
 
 require(gdata)
 require(reshape2)
