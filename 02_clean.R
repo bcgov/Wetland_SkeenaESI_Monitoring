@@ -12,14 +12,14 @@
 
 source('header.R')
 
-#Make an unlist for column names, clean up so no spaces and puncutation
+#Make a list for column names, clean up so no spaces and puncutation
 colName<-PlotInfo[,1] %>%
   mutate_all(funs(gsub("[[:punct:]]", "", .))) %>%
   mutate_all(funs(gsub(" ", "_", .))) %>%
   unlist()
 
-#Peel off top of file which has general wetland info
-#First record contains headers
+#Peel off top of file which has general wetland info and transform to data.frame
+#First record contains headers, will add layer
 WetInfo<-PlotInfo[1:8,-1] %>%
   t() %>%
   as.data.frame()
@@ -28,13 +28,13 @@ colnames(WetInfo)<-colName[1:8]
 WetInfo <- tibble::rownames_to_column(WetInfo, "FID")
 
 #split sampled wetlands into in wetland plots ie data.frame is by plots not wetlands
-# 5 possible sub-plots
-#First Transpose entire data set
+#5 possible sub-plots
+#First Transpose entire data set, except header row
 WetPlots<-PlotInfo[9:79,-1] %>%
   t() %>%
   as.data.frame()
 
-#Make a list of column names for plots
+#Make a list of column names for plots - from colName done above
 colnames(WetPlots)<-colName[9:79]
 WetPlots <- WetPlots %>%
   tibble::rownames_to_column("FID")
@@ -46,7 +46,7 @@ WetExtractF <- function(WP,i) {
   setNames(wetPlotColNames)
 }
 
-#Make a column name list
+#Make a generic column name list ie peel off P#_ from each record
   wetPlotColNames <- WetPlots %>%
     dplyr::select(FID,starts_with("P1")) %>%
     colnames() %>%
@@ -69,5 +69,11 @@ WetWildlife<-PlotInfo[80:142,-1] %>%
 colnames(WetWildlife)<-colName[80:142]
 WetWildlife <- tibble::rownames_to_column(WetWildlife, "FID")
 
+#Clean up Plot Function Data
+#Make a list for column names, clean up so no spaces and puncutation
+colName<-WetPlotFnData[,1] %>%
+  mutate_all(funs(gsub("[[:punct:]]", "", .))) %>%
+  mutate_all(funs(gsub(" ", "_", .))) %>%
+  unlist()
 
 

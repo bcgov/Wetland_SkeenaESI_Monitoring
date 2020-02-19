@@ -13,13 +13,20 @@
 source("header.R")
 
 #Read spreadsheet sheets from Tier2Data_FieldForms_PlotAndVeg_DoneMA.xlsx
-WetPlots<- excel_sheets(file.path(WetMonDir,'Tier2Data_FieldForms_PlotAndVeg_DoneMA.xlsx'))
+WetPlotIn<- excel_sheets(file.path(WetMonDir,'Tier2Data_FieldForms_PlotAndVeg_DoneMA.xlsx'))
 #First sheet is the plot info - has to make up column  names for some throwing a warning
 PlotInfo<-read_excel(file.path(WetMonDir,'Tier2Data_FieldForms_PlotAndVeg_DoneMA.xlsx'),
-                     sheet = WetPlots[1])
+                     sheet = WetPlotIn[1])
 #Subsequent sheets are veg plots
-x<-WetPlots[2:length(WetPlots)]
+x<-WetPlotIn[2:length(WetPlotIn)]
 WetList<-lapply(x,function(x) {
   read_excel(file.path(WetMonDir,'Tier2Data_FieldForms_PlotAndVeg_DoneMA.xlsx'), sheet=x)
   })
+
+#Read spreadsheet sheets from WESP-BC_FieldForms_DataDoneMA.xslx function forms
+WetPlotFnSheets<- excel_sheets(file.path(WetMonDir,'WESP-BC_FieldForms_DataDoneMA.xlsx'))
+WetPlotFnData<-read_excel(file.path(WetMonDir,'WESP-BC_FieldForms_DataDoneMA.xlsx'),
+                          sheet = WetPlotFnSheets[2])
+WetPlotFnStressor<-read_excel(file.path(WetMonDir,'WESP-BC_FieldForms_DataDoneMA.xlsx'),
+                          sheet = WetPlotFnSheets[3])
 
