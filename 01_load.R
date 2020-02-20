@@ -25,8 +25,9 @@ WetList<-lapply(x,function(x) {
 
 #Read spreadsheet sheets from WESP-BC_FieldForms_DataDoneMA.xslx function forms
 WetPlotFnSheets<- excel_sheets(file.path(WetMonDir,'WESP-BC_FieldForms_DataDoneMA.xlsx'))
-WetPlotFnData<-read_excel(file.path(WetMonDir,'WESP-BC_FieldForms_DataDoneMA.xlsx'),
+WetPlotFnDataIn<-read_excel(file.path(WetMonDir,'WESP-BC_FieldForms_DataDoneMA_DM.xlsx'),
                           sheet = WetPlotFnSheets[2])
-WetPlotFnStressor<-read_excel(file.path(WetMonDir,'WESP-BC_FieldForms_DataDoneMA.xlsx'),
+#Added a column in spreadsheet for each indicator
+WetPlotFnStressor<-read_excel(file.path(WetMonDir,'WESP-BC_FieldForms_DataDoneMA_DM.xlsx'),
                           sheet = WetPlotFnSheets[3])
 

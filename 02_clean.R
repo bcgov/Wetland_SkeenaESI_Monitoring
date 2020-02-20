@@ -70,10 +70,20 @@ colnames(WetWildlife)<-colName[80:142]
 WetWildlife <- tibble::rownames_to_column(WetWildlife, "FID")
 
 #Clean up Plot Function Data
-#Make a list for column names, clean up so no spaces and puncutation
-colName<-WetPlotFnData[,1] %>%
-  mutate_all(funs(gsub("[[:punct:]]", "", .))) %>%
-  mutate_all(funs(gsub(" ", "_", .))) %>%
-  unlist()
+#remove unnecessary columns and transform
+WetPlotFnData <- WetPlotFnDataIn %>%
+  dplyr::select(8:39) %>%
+  t() %>%
+  as.data.frame()
 
+#assign column names
+colName<- WetPlotFnDataIn %>%
+  dplyr::select(1)
+colnames(WetPlotFnData)<-unlist(as.list(colName))
+#Clean up names
+WetPlotFnData <- WetPlotFnData[ !duplicated(names(WetPlotFnData)) ]
+#Drop un-needed columns, take first row and id all NA then drop those columns
+ColsToDrop <- WetPlotFnData[1,]
+WetPlotFnData <- WetPlotFnData %>%
+  dplyr::select(-c(colnames(ColsToDrop)[colSums(is.na(ColsToDrop)) > 0]))
 
