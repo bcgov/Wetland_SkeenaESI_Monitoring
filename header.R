@@ -12,6 +12,7 @@ library(WriteXLS)
 library(ggplot2)
 library(readxl)
 library(stringr)
+library(mapview)
 
 require(gdata)
 require(reshape2)
@@ -27,7 +28,7 @@ SpatialDir <- file.path('data','spatial')
 DataDir <- file.path('data',MonitoringSeason)
 spatialOutDir <- file.path(OutDir,'spatial')
 
-GBspatialDir <- file.path('../GB_Data/out/spatial')
+WetspatialDir <- file.path('../../../Projects/ESI/Wetlands/Assessment/Data/Wetland_T1')
 GBdataOutDir <- file.path('../GB_Data/out/data')
 GBPDir <-file.path('../GB_Data/data/Population/Bear_Density_2018')
 

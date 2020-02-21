@@ -31,3 +31,12 @@ WetPlotFnDataIn<-read_excel(file.path(WetMonDir,'WESP-BC_FieldForms_DataDoneMA_D
 WetPlotFnStressor<-read_excel(file.path(WetMonDir,'WESP-BC_FieldForms_DataDoneMA_DM.xlsx'),
                           sheet = WetPlotFnSheets[3])
 
+#Load spatial data
+Wet_gdb <-file.path(WetspatialDir,'Skeena_ESI_T1_Wetland_20191219.gdb')
+
+Wetlands <- readOGR(dsn=Wet_gdb, layer = "Skeena_ESI_T1_Wetland_20191219") %>%
+  as('sf')
+st_crs(Wetlands)=3005
+
+Wetland_data<- Wetlands
+st_geometry(Wetland_data) <- NULL

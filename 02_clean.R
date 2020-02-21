@@ -87,3 +87,22 @@ ColsToDrop <- WetPlotFnData[1,]
 WetPlotFnData <- WetPlotFnData %>%
   dplyr::select(-c(colnames(ColsToDrop)[colSums(is.na(ColsToDrop)) > 0]))
 
+#Join WetlandFnData to spatial wetland data on 'NewID' and 'Wetland_Co'
+WetPlotFnData$Wetland_Co<-as.numeric(levels(WetPlotFnData$NewID))[WetPlotFnData$NewID]
+
+Wetland_Fn<-Wetlands %>%
+  left_join(WetPlotFnData, by=c('Wetland_Co')) %>%
+  dplyr::filter(!is.na(NewID))
+
+mapview(Wetland_Fn)
+
+##############
+#Data explore
+Wetland_Fntest<-Wetland_data %>%
+  left_join(WetPlotFnData, by=c('Wetland_Co')) %>%
+  dplyr::select(Wetland_Co,NewID, Shape_Area, MAP_LABEL)
+
+
+
+
+
