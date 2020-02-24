@@ -22,6 +22,7 @@ x<-WetPlotIn[2:length(WetPlotIn)]
 WetList<-lapply(x,function(x) {
   read_excel(file.path(WetMonDir,'Tier2Data_FieldForms_PlotAndVeg_DoneMA.xlsx'), sheet=x)
   })
+names(WetList) <- x
 
 #Read spreadsheet sheets from WESP-BC_FieldForms_DataDoneMA.xslx function forms
 WetPlotFnSheets<- excel_sheets(file.path(WetMonDir,'WESP-BC_FieldForms_DataDoneMA.xlsx'))

@@ -5,6 +5,7 @@ library(plyr)
 library(readr)
 library(raster)
 library(bcmaps)
+library(bcdata)
 library(fasterize)
 library(tidyr)
 library(rio)
@@ -13,9 +14,8 @@ library(ggplot2)
 library(readxl)
 library(stringr)
 library(mapview)
-
-require(gdata)
-require(reshape2)
+library(gdata)
+library(reshape2)
 
 
 MonitoringSeason<-"2019"
