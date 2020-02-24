@@ -52,7 +52,7 @@ internal.R
 *.html
 *.pdf
 .DS_Store
-/out*/
+#/out*/
 /tmp*/
 *qgs*
 *doc*

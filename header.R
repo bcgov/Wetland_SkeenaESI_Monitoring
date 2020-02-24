@@ -5,6 +5,7 @@ library(plyr)
 library(readr)
 library(raster)
 library(bcmaps)
+library(bcdata)
 library(fasterize)
 library(tidyr)
 library(rio)
@@ -12,9 +13,9 @@ library(WriteXLS)
 library(ggplot2)
 library(readxl)
 library(stringr)
-
-require(gdata)
-require(reshape2)
+library(mapview)
+library(gdata)
+library(reshape2)
 
 
 MonitoringSeason<-"2019"
@@ -27,7 +28,7 @@ SpatialDir <- file.path('data','spatial')
 DataDir <- file.path('data',MonitoringSeason)
 spatialOutDir <- file.path(OutDir,'spatial')
 
-GBspatialDir <- file.path('../GB_Data/out/spatial')
+WetspatialDir <- file.path('../../../Projects/ESI/Wetlands/Assessment/Data/Wetland_T1')
 GBdataOutDir <- file.path('../GB_Data/out/data')
 GBPDir <-file.path('../GB_Data/data/Population/Bear_Density_2018')
 
