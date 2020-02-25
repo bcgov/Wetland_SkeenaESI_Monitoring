@@ -13,3 +13,5 @@
 source('header.R')
 
 WriteXLS(WetPlotFnData,file.path(dataOutDir,paste('WetPlotFnData.xls',sep='')))
+
+#WriteXLS(WetPlotFnData,file.path(OutDir,paste('WetPlotFnData.xls',sep='')))
