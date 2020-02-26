@@ -34,30 +34,22 @@ WetInfo <-PlotInfo[1:8,-1] %>%
   as.data.frame()
 
 colnames(WetInfo)<-colName[1:8]
+
 WetInfo <- WetInfo %>%
   tibble::rownames_to_column("FID") %>%
-  dplyr::rename(NewID=New_PolygonID_Layer_January_2020___Merged_wetland_Polygons__ObjectID)
-
-WetInfo <- WetInfo %>%
-  mutate(comments = WPT)
-
-WetInfo <- WetInfo %>%
-  mutate(WPT = as.numeric(as.character(WPT)),
-         WPT = ifelse( FID == "190975", 142, WPT),
-         NewID = as.numeric(as.character(NewID)))
-
-# Fix dates
-WetInfo <- WetInfo %>%
-    mutate(Date2 = case_when(
-                  FID == "111563" ~  mdy(as.character(Date)))) %>%
-    mutate(Date1 = excel_numeric_to_date(
-      as.numeric(as.character(WetInfo$Date)), date_system = "modern"))
-
-WetInfo <- WetInfo %>%
+  dplyr::rename(NewID=New_PolygonID_Layer_January_2020___Merged_wetland_Polygons__ObjectID,
+                slope_pc = Slope_) %>%
+  rename_all(tolower) %>%
+  mutate(comments = wpt,
+         wpt = as.numeric(as.character(wpt)),
+         wpt = ifelse(fid == "190975", 142, wpt),
+         newid = as.numeric(as.character(newid)),
+         date2 = case_when(fid == "111563" ~  mdy(as.character(date))),
+         date1 = excel_numeric_to_date(
+           as.numeric(as.character(date)), date_system = "modern")) %>%
   rowwise() %>%
-   mutate(Date = max(Date2, Date1, na.rm = TRUE) )
-
-
+  mutate(date = max(date2, date1, na.rm = TRUE))%>%
+  select(- date2, date1)
 
 
 
@@ -72,8 +64,17 @@ WetInfoPlots<-PlotInfo[c(1,9:79),-1] %>%
   t() %>%
   as.data.frame()
 
+
+
+trans_plotdata <- function()
+
+
+
+
+
 #Make a list of column names for plots - from colName done above
 colnames(WetInfoPlots)<-colName[c(1,9:79)]
+
 WetInfoPlots <- WetInfoPlots %>%
   tibble::rownames_to_column("FID") %>%
   dplyr::rename(NewID=New_PolygonID_Layer_January_2020___Merged_wetland_Polygons__ObjectID)
