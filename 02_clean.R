@@ -20,7 +20,7 @@ colName<-PlotInfo[,1] %>%
 
 #Peel off top of file which has general wetland info and transform to data.frame
 #First record contains headers, will add layer
-WetInfo<-PlotInfo[1:8,-1] %>%
+WetInfo <-PlotInfo[1:8,-1] %>%
   t() %>%
   as.data.frame()
 
@@ -28,6 +28,37 @@ colnames(WetInfo)<-colName[1:8]
 WetInfo <- WetInfo %>%
   tibble::rownames_to_column("FID") %>%
   dplyr::rename(NewID=New_PolygonID_Layer_January_2020___Merged_wetland_Polygons__ObjectID)
+
+WetInfo <- WetInfo %>%
+  mutate(comments = WPT)
+
+WetInfo <- WetInfo %>%
+  mutate(WPT = as.numeric(as.character(WPT)),
+         WPT = ifelse( FID == "190975", 142, WPT),
+         NewID = as.numeric(as.character(NewID)))
+
+x <- WetInfo %>%
+    mutate(Date1 = excel_numeric_to_date(
+      as.numeric(as.character(WetInfo$Date)), date_system = "modern"),
+           Date1 = ifelse(FID == "40076", 2019-08-30, Date1))
+
+40076
+
+
+             as.Date(as.character(WetInfo[4,5], origin = "1899-12-30")
+  )
+
+library(lubridate)
+
+install.packages("janitor")
+install.packages("tibble")
+
+library(tibble)
+library(janitor)
+
+excel_numeric_to_date(as.numeric(as.character(WetInfo$Date)), date_system = "modern")
+
+
 
 #split sampled wetlands into in wetland plots ie data.frame is by plots not wetlands
 #5 possible sub-plots
