@@ -53,7 +53,7 @@ WetInfo <- WetInfo %>%
            as.numeric(as.character(date)), date_system = "modern")) %>%
   rowwise() %>%
   mutate(date = max(date2, date1, na.rm = TRUE))%>%
-  select(- date2, date1)
+  select(- c(date2, date1))
 
 
 
@@ -97,13 +97,13 @@ for (j in 1:5) {
 
 
 #Re-assemble as a data.frame by plots
-WetInfoPlots2<-bind_rows(WetVPList, .id = "wplot_num")
-w <-bind_rows(WetVPList, .id = "wplot_num")
+WetInfoPlots2<-bind_rows(WetVPList, .id = "plot.id")
+w <-bind_rows(WetVPList, .id = "plot.id")
 w <- w[,-16]
 
 
 WetInfoPlots2 <- w %>%
-  mutate(wplot_num = as.numeric(wplot_num),
+  mutate(plot.id = as.numeric(plot.id),
           easting = as.numeric(easting),
           northing = as.numeric(northing),
           water_ph = as.numeric(water_ph))
@@ -118,15 +118,24 @@ WetWildlife<-PlotInfo[c(1,80:142),-1] %>%
 
 colnames(WetWildlife)<-colName[c(1,80:142)]
 WetWildlife <- tibble::rownames_to_column(WetWildlife, "fid")
+WetWildlife <- dplyr::rename(WetWildlife , newid =
+                               New_PolygonID_Layer_January_2020__Merged_wetland_Polygons_ObjectID)
 
 ##############
 # Plot Veg surveys - WetList
 # Aggregate plots id'd by wetland id and plot number
+
 WetVegPlots_DF<- WetList %>%
   ldply(data.frame) %>%
-  mutate(NewID=gsub("Veg_FID","",.id)) %>%
-  dplyr::select(NewID, Plot.ID, Species.Name, Latin,
-                pc_cover=X..Cover, gt_3m=X.3.m, eq_1to3=X1.3.m, lt_1m=X..1m)
+  mutate(fid = gsub("Veg_FID","",.id)) %>%
+  dplyr::select(fid, Plot.ID, Species.Name, Latin,
+                pc_cover=X..Cover, gt_3m=X.3.m, eq_1to3=X1.3.m, lt_1m=X..1m) %>%
+  rename_all(tolower) %>%
+  mutate(plot.id = as.numeric(gsub("P","", plot.id))) %>%
+  mutate(latin = tolower(trimws(latin)),
+         latin = gsub("sp.","sp",latin))
+
+
 
 #Clean up Plot Function Data
 #remove unnecessary columns and transform
@@ -136,9 +145,10 @@ WetPlotFnData <- WetPlotFnDataIn %>%
   as.data.frame()
 
 #assign column names
-colName<- WetPlotFnDataIn %>%
+colName <- WetPlotFnDataIn %>%
   dplyr::select(1)
 colnames(WetPlotFnData)<-unlist(as.list(colName))
+
 #Clean up names
 WetPlotFnData <- WetPlotFnData[ !duplicated(names(WetPlotFnData)) ]
 #Drop un-needed columns, take first row and id all NA then drop those columns
@@ -164,7 +174,7 @@ WetStress<-WetPlotFnStressor %>% #[7:29]
 #Assign colnames to transposed data and select cells that have data
 colnames(WetStress)<-unlist(as.list(WetStress[1,]))
 WetStress<-WetStress[8:nrow(WetStress),2:ncol(WetStress)] %>%
-  tibble::rownames_to_column("NFID")
+  tibble::rownames_to_column("fid")
 
 #Join WetlandFnData to spatial wetland data on 'NewID' and 'Wetland_Co'
 WetPlotFnData$Wetland_Co<-as.numeric(levels(WetPlotFnData$NewID))[WetPlotFnData$NewID]
@@ -177,19 +187,8 @@ Wetland_Fn<-Wetlands %>%
 
 ## write out data
 #Take processed data make alist and write to multi-tab spreadsheet for use in R course
-WetData<-list(WetInfo,WetInfoPlots,WetVegPlots_DF,WetPlotFnData1,WetPlotFnData2,WetStress)
-WetDataNames<-c('WetlandInfo','WetlandVeg','WetVegPlots_DF,','WetlandFunction1','WetlandFunction2','WetlandStressors')
+WetData<-list(WetInfo,WetInfoPlots2,WetVegPlots_DF,WetPlotFnData1,WetPlotFnData2,WetStress)
+WetDataNames<-c('WetlandInfo','WetlandVeg','WetVegPlots_DF','WetlandFunction1','WetlandFunction2','WetlandStressors')
 
-WriteXLS(WetData,file.path(dataOutDir,paste('WetPlots.xls',sep='')),SheetNames=WetDataNames)
-
-##############
-
-#Data explore
-Wetland_Fntest<-Wetland_data %>%
-  left_join(WetPlotFnData, by=c('Wetland_Co')) %>%
-  dplyr::select(Wetland_Co,NewID, Shape_Area, MAP_LABEL)
-
-
-
-
+WriteXLS(WetData,file.path(dataOutDir,paste('WetPlots.xlsx',sep='')),SheetNames=WetDataNames)
 
