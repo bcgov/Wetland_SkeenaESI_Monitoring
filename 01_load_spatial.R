@@ -60,21 +60,4 @@ waterbodies <- bcdc_query_geodata("93b413d8-1840-4770-9629-641d74bd1cc6", crs = 
 
 
 
-Complete some spatial analysis to determine a random stratified sampling
-
-
-2)	Demo’s
-Bring in watershed (stratified random sampling)
-a.	Eca  Equiv cc..area
-b.	Salmon spawning ? FISS (intersect), https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions
-c.	Filter by watershed –
-d.	Promimity to road –
-e.
-f.	Road density?
-  g.	Generate random points ?
-  h.	, clearing , roads access, random site selection
-i.	Generate KML
-j.	Geopackages  export
-
-Double check tih Don and AMR
 
