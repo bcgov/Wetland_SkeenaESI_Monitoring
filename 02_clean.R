@@ -10,6 +10,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
+
+#install.packages("janitor")
+#install.packages("tibble")
+
+library(lubridate)
+library(tibble)
+library(janitor)
+
+
 source('header.R')
 
 #Make a list for column names, clean up so no spaces and puncutation
@@ -37,26 +46,22 @@ WetInfo <- WetInfo %>%
          WPT = ifelse( FID == "190975", 142, WPT),
          NewID = as.numeric(as.character(NewID)))
 
-x <- WetInfo %>%
+# Fix dates
+WetInfo <- WetInfo %>%
+    mutate(Date2 = case_when(
+                  FID == "111563" ~  mdy(as.character(Date)))) %>%
     mutate(Date1 = excel_numeric_to_date(
-      as.numeric(as.character(WetInfo$Date)), date_system = "modern"),
-           Date1 = ifelse(FID == "40076", 2019-08-30, Date1))
+      as.numeric(as.character(WetInfo$Date)), date_system = "modern"))
 
-40076
+WetInfo <- WetInfo %>%
+  rowwise() %>%
+   mutate(Date = max(Date2, Date1, na.rm = TRUE) )
 
 
-             as.Date(as.character(WetInfo[4,5], origin = "1899-12-30")
-  )
 
-library(lubridate)
 
-install.packages("janitor")
-install.packages("tibble")
 
-library(tibble)
-library(janitor)
 
-excel_numeric_to_date(as.numeric(as.character(WetInfo$Date)), date_system = "modern")
 
 
 
