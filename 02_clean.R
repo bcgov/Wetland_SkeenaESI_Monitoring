@@ -25,7 +25,11 @@ source('header.R')
 colName<-PlotInfo[,1] %>%
   mutate_all(funs(gsub("[[:punct:]]", "", .))) %>%
   mutate_all(funs(gsub(" ", "_", .)))  %>%
+  mutate_all(funs(gsub("__", "_", .)))  %>%
+  mutate_all(funs(gsub("___", "_", .)))  %>%
   unlist()
+
+## Wetland site information  - Sheet 1:
 
 #Peel off top of file which has general wetland info and transform to data.frame
 #First record contains headers, will add layer
@@ -37,7 +41,7 @@ colnames(WetInfo)<-colName[1:8]
 
 WetInfo <- WetInfo %>%
   tibble::rownames_to_column("FID") %>%
-  dplyr::rename(NewID=New_PolygonID_Layer_January_2020___Merged_wetland_Polygons__ObjectID,
+  dplyr::rename(NewID = New_PolygonID_Layer_January_2020__Merged_wetland_Polygons_ObjectID,
                 slope_pc = Slope_) %>%
   rename_all(tolower) %>%
   mutate(comments = wpt,
@@ -54,43 +58,36 @@ WetInfo <- WetInfo %>%
 
 
 
-
+## Wetland plot information  - Sheet 2:
 
 
 #split sampled wetlands into in wetland plots ie data.frame is by plots not wetlands
 #5 possible sub-plots
 #First Transpose entire data set, except header row
-WetInfoPlots<-PlotInfo[c(1,9:79),-1] %>%
+WetInfoPlots<-PlotInfo[c(1,9:79),-1 ] %>%
   t() %>%
   as.data.frame()
-
-
-
-trans_plotdata <- function()
-
-
-
-
 
 #Make a list of column names for plots - from colName done above
 colnames(WetInfoPlots)<-colName[c(1,9:79)]
 
 WetInfoPlots <- WetInfoPlots %>%
-  tibble::rownames_to_column("FID") %>%
-  dplyr::rename(NewID=New_PolygonID_Layer_January_2020___Merged_wetland_Polygons__ObjectID)
+  tibble::rownames_to_column("fid") %>%
+  dplyr::rename(NewID=New_PolygonID_Layer_January_2020__Merged_wetland_Polygons_ObjectID) %>%
+  rename_all(tolower)
 
 ###Option do within plot samples as seperate records or as attributes - stop as above
 #Function to select plots
 WetExtractF <- function(WP,i) {
-  WP %>% dplyr::select(FID,starts_with(paste("P",i,sep=''))) %>%
+  WP %>% dplyr::select(fid, starts_with(paste("p",i,sep=''))) %>%
   setNames(wetPlotColNames)
 }
 
 #Make a generic column name list ie peel off P#_ from each record
   wetPlotColNames <- WetInfoPlots %>%
-    dplyr::select(FID,starts_with("P1")) %>%
+    dplyr::select(fid,starts_with("p1")) %>%
     colnames() %>%
-    str_remove("P1_")
+    str_remove("p1_")
 
 #Make a list of plots
   WetVPList<-list()
@@ -98,8 +95,21 @@ for (j in 1:5) {
   WetVPList[[j]]<-WetExtractF(WetInfoPlots,j)
 }
 
+
 #Re-assemble as a data.frame by plots
-WetInfoPlots2<-bind_rows(WetVPList, .id = "Wetland_Plot_Num")
+WetInfoPlots2<-bind_rows(WetVPList, .id = "wplot_num")
+w <-bind_rows(WetVPList, .id = "wplot_num")
+w <- w[,-16]
+
+
+WetInfoPlots2 <- w %>%
+  mutate(wplot_num = as.numeric(wplot_num),
+          easting = as.numeric(easting),
+          northing = as.numeric(northing),
+          water_ph = as.numeric(water_ph))
+
+
+# wetland animal sightings # sheet 3.
 
 #Peel off wildlife obervations
 WetWildlife<-PlotInfo[c(1,80:142),-1] %>%
@@ -107,7 +117,7 @@ WetWildlife<-PlotInfo[c(1,80:142),-1] %>%
   as.data.frame()
 
 colnames(WetWildlife)<-colName[c(1,80:142)]
-WetWildlife <- tibble::rownames_to_column(WetWildlife, "FID")
+WetWildlife <- tibble::rownames_to_column(WetWildlife, "fid")
 
 ##############
 # Plot Veg surveys - WetList
