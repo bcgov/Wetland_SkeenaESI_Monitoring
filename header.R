@@ -42,5 +42,6 @@ dir.create("tmp", showWarnings = FALSE)
 #Location of Monitoring spreadsheet
 #WetMonDir<-file.path('../../../Projects/ESI/Wetlands/Monitoring/2019FieldData')
 WetMonDir<-file.path('data')
+WetspatialDir <- file.path('data')
 #system(paste('ls ',WetMonDir,sep=''))
 
