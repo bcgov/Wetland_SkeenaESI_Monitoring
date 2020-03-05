@@ -16,7 +16,12 @@ library(stringr)
 library(mapview)
 library(gdata)
 library(reshape2)
-
+#added by Gen P.
+library(plotKML)
+library(purrr)
+library(lubridate)
+library(tibble)
+library(janitor)
 
 MonitoringSeason<-"2019"
 
@@ -28,9 +33,11 @@ SpatialDir <- file.path('data','spatial')
 DataDir <- file.path('data',MonitoringSeason)
 spatialOutDir <- file.path(OutDir,'spatial')
 
-WetspatialDir <- file.path('../../../Projects/ESI/Wetlands/Assessment/Data/Wetland_T1')
+WetspatialDir <- file.path('../../../Projects/ESI/Wetlands/Assessment/Data')
 GBdataOutDir <- file.path('../GB_Data/out/data')
 GBPDir <-file.path('../GB_Data/data/Population/Bear_Density_2018')
+ESIDir <- file.path('/Users/darkbabine/Dropbox (BVRC)/Projects/ESI')
+RoadDir <- file.path('/Users/darkbabine/Dropbox (BVRC)/_dev/Biodiversity/bc-raster-roads/data')
 
 dir.create(file.path(OutDir), showWarnings = FALSE)
 dir.create(file.path(dataOutDir), showWarnings = FALSE)
@@ -40,8 +47,8 @@ dir.create(DataDir, showWarnings = FALSE)
 dir.create("tmp", showWarnings = FALSE)
 
 #Location of Monitoring spreadsheet
-#WetMonDir<-file.path('../../../Projects/ESI/Wetlands/Monitoring/2019FieldData')
-WetMonDir<-file.path('data')
-WetspatialDir <- file.path('data')
+WetMonDir<-file.path('../../../Projects/ESI/Wetlands/Monitoring/2019FieldData')
+#WetMonDir<-file.path('data')
+#WetspatialDir <- file.path('data')
 #system(paste('ls ',WetMonDir,sep=''))
 
