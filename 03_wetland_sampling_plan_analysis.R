@@ -15,6 +15,10 @@
 
 # requires : WetPlots.xlsx
 
+#Add using existing to meet sample criteria ie identify gaps not sampled
+#Add other strata
+#Add lake adjacency
+
 source('header.R')
 
 #Read in cleaned wetland plot data
@@ -160,7 +164,7 @@ bec_pts <- st_intersection(waterpt, bec_sf)
 bgc.ls <- as.list(unique(bec_pts$MAP_LABEL))
 
 
-# If we want to sample 100 sites first we need to calculate the proportion of sites
+# If we want to sample 10 sites first we need to calculate the proportion of sites
 # to sample within each variant
 
 prop.site <- bec_pts %>%
