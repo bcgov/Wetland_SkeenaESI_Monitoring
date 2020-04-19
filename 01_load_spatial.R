@@ -60,6 +60,7 @@ BurnSeverity_2017 <- readOGR(dsn=WetInData, layer = "BurnSeverity_2017_181128") 
 st_crs(BurnSeverity_2017)<-3005
 saveRDS(BurnSeverity_2017,'tmp/BurnSeverity_2017')
 
+
 # 1. Water Drainage data
 #  read in the water drainage data set to set up and AOI:
 # https://catalogue.data.gov.bc.ca/dataset/water-survey-of-canada-sub-sub-drainage-areas
