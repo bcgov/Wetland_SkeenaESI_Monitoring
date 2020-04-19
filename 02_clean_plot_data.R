@@ -20,9 +20,6 @@ colName<-PlotInfo[,1] %>%
   mutate_all(funs(gsub("___", "_", .)))  %>%
   unlist()
 
-
-
-
 ## Wetland site information  - Sheet 1:
 
 #Peel off top of file which has general wetland info and transform to data.frame
@@ -222,12 +219,6 @@ colnames(WetStress)<-unlist(as.list(WetStress[1,]))
 WetStress<-WetStress[8:nrow(WetStress),2:ncol(WetStress)] %>%
   tibble::rownames_to_column("fid") %>%
   right_join(newid_LUT)
-
-
-
-
-
-
 
 
 ## write out data

@@ -7,6 +7,13 @@ source('header.R')
 # bring in BC boundary
 bc <- bcmaps::bc_bound()
 
+ProvRast<-raster(nrows=15744, ncols=17216, xmn=159587.5, xmx=1881187.5,
+                 ymn=173787.5, ymx=1748187.5,
+                 res = c(100,100), vals = 1)
+
+crs(ProvRast)<-crs(bc)
+saveRDS(ProvRast,file='tmp/ProvRast')
+
 ESI_file <- file.path("tmp/ESI")
 if (!file.exists(ESI_file)) {
 #Load ESI boundary
@@ -15,25 +22,43 @@ ESIin <- read_sf(file.path(ESIDir,'Data/Skeena_ESI_Boundary'), layer = "ESI_Skee
 ESI <- st_cast(ESIin, "MULTIPOLYGON")
 saveRDS(ESI, file = ESI_file)
 
-#For data download use filtered ws as a subset
-study_area <- ESI
-
 #Load ESI supporting wetland data
 Wet_gdb <-file.path(WetspatialDir,'Wetland_Assessment_Level1_InputData.gdb')
 wet_list <- st_layers(Wet_gdb)
 
 #Load ESI Wetlands
 WetW_gdb <-file.path(WetspatialDir,'Wetland_T1','Skeena_ESI_T1_Wetland_20191219.gdb')
-#wet_list <- st_layers(Wet_gdb)
+#wet_list <- st_layers(WetW_gdb)
 Wetlands <- readOGR(dsn=WetW_gdb, layer = "Skeena_ESI_T1_Wetland_20191219") %>%
   as('sf')
-st_crs(ws)<-3005
+Wetlands <- Wetlands %>%
+  mutate(wet_id=as.numeric(rownames(Wetlands)))
+st_crs(Wetlands)<-3005
 saveRDS(Wetlands, file = 'tmp/Wetlands')
 
+#Read in all the fire layers
+WetInData<-file.path(WetspatialDir,'Wetland_Assessment_Level1_InputData.gdb')
+wetin_list <- st_layers(WetInData)
 
-#Make a version that is data only
-Wetland_data<- Wetlands
-st_geometry(Wetland_data) <- NULL
+Wildfire_2018 <- readOGR(dsn=WetInData, layer = "Wildfire_2018_181128")  %>%
+  as('sf')
+st_crs(Wildfire_2018)<-3005
+saveRDS(Wildfire_2018,'tmp/Wildfire_2018')
+
+Wildfire_Historical <- readOGR(dsn=WetInData, layer = "Wildfire_Historical_181128")   %>%
+  as('sf')
+st_crs(Wildfire_Historical)<-3005
+saveRDS(Wildfire_Historical,'tmp/Wildfire_Historical')
+
+BurnSeverity_2018 <- readOGR(dsn=WetInData, layer = "BurnSeverity_2018_181128")   %>%
+  as('sf')
+st_crs(BurnSeverity_2018)<-3005
+saveRDS(BurnSeverity_2018,'tmp/BurnSeverity_2018')
+
+BurnSeverity_2017 <- readOGR(dsn=WetInData, layer = "BurnSeverity_2017_181128")   %>%
+  as('sf')
+st_crs(BurnSeverity_2017)<-3005
+saveRDS(BurnSeverity_2017,'tmp/BurnSeverity_2017')
 
 # 1. Water Drainage data
 #  read in the water drainage data set to set up and AOI:
@@ -45,8 +70,7 @@ st_geometry(Wetland_data) <- NULL
 #  filter(SUB_DRAINAGE_AREA_NAME %in% c("Nechako", "Skeena - Coast"))
 
 ws <- get_layer("wsc_drainages", class = "sf") %>%
-  select(SUB_DRAINAGE_AREA_NAME, SUB_SUB_DRAINAGE_AREA_NAME) %>%
-  st_intersection(study_area)
+  select(SUB_DRAINAGE_AREA_NAME, SUB_SUB_DRAINAGE_AREA_NAME)
 st_crs(ws)<-3005
 saveRDS(ws, file = 'tmp/ws')
 
@@ -60,6 +84,11 @@ saveRDS(ws, file = 'tmp/ws')
 Streams <- read_sf(Wet_gdb, layer = "FWA_Streams")
 st_crs(Streams) <- 3005
 saveRDS(Streams, file = 'tmp/Streams')
+
+#FWA_Rivers
+Rivers <- read_sf(Wet_gdb, layer = "FWA_Rivers")
+st_crs(Rivers) <- 3005
+saveRDS(Rivers, file = 'tmp/Rivers')
 
 #FWA_Lakes
 waterbodies <- read_sf(Wet_gdb, layer = "FWA_Lakes")
@@ -87,11 +116,9 @@ saveRDS(ESI_Gitanyow, file='tmp/ESI_Gitanyow')
 
 # Download BEC - # Gets bec_sf zone shape and filters the desired subzones
 bec_sf <- bec(class = "sf") %>%
-  st_intersection(study_area) %>%
   select(ZONE, MAP_LABEL, ZONE_NAME ) %>%
   st_cast("MULTIPOLYGON")
 saveRDS(bec_sf, file='tmp/bec_sf')
-
 
 #Roads - use latest CE roads
 Rd_gdb <- list.files(file.path(RoadDir, "CE_Roads/2017"), pattern = ".gdb", full.names = TRUE)[1]
@@ -99,7 +126,6 @@ fc_list <- st_layers(Rd_gdb)
 
 # Read as sf and calculate road lengths
 roads_sf <- read_sf(Rd_gdb, layer = "integrated_roads") %>%
- st_intersection(study_area) %>%
   mutate(rd_len = st_length(.))
 st_crs(roads_sf) <- 3005
 saveRDS(roads_sf, file='tmp/roads_sf')
@@ -111,8 +137,7 @@ saveRDS(ESI_DEM, file = 'tmp/ESI_DEM')
 #Read in Landform file and mask to ESI area
 LForm<-
   #raster(file.path('../GB_Data/data/Landform',"Landform_BCAlbs.tif")) %>%
-  raster(file.path('/Users/darkbabine/Dropbox (BVRC)/_dev/Bears/GB_Data/data/Landform',"LForm.tif")) %>%
-  mask(ESI)
+  raster(file.path('/Users/darkbabine/Dropbox (BVRC)/_dev/Bears/GB_Data/data/Landform',"LForm.tif"))
 saveRDS(LForm, file = 'tmp/LForm')
 #mapview(LForm, maxpixels =  271048704)
 
@@ -138,18 +163,58 @@ LForm_LUT <- data.frame(LFcode = c(1000,2000,3000,4000,5000,6000,7000,8000,9000)
 saveRDS(LForm_LUT, file = 'tmp/LForm_LUT')
 
 LandCover<-
-  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','LandCover.tif')) %>%
-  mask(ESI)
+  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','LandCover.tif'))
+saveRDS(LandCover, file = 'tmp/LandCover')
 LandCover_LUT <- read_excel(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/LUT','LandCoverLookUp_LUT.xlsx'),sheet=1)
-saveRDS(LandCover, file = 'tmp/LandCover_LUT')
+saveRDS(LandCover_LUT, file = 'tmp/LandCover_LUT')
+
+LandCoverAndAge<-
+  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','LandCoverAndAge.tif'))
+saveRDS(LandCoverAndAge, file = 'tmp/LandCoverAndAge')
 
 Age<-
-  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','Age.tif')) %>%
-  mask(ESI)
+  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','Age.tif'))
 saveRDS(Age, file = 'tmp/Age')
 
-#bcdata::filter(INTERSECTS(study_area)) %>%
-#  collect()
+LogYear<-
+  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','LogYear.tif'))
+saveRDS(LogYear, file = 'tmp/LogYear')
+
+#Raster rail
+RailRoads<-
+  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','RailRoads.tif'))
+saveRDS(RailRoads, file = 'tmp/RailRoads')
+
+#Raster pipeline
+Pipe<-
+  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','Pipe_PrinceRupertGasTransmissionLtd.tif'))
+saveRDS(Pipe, file = 'tmp/Pipe')
+
+#Raster HydroTransmission
+HydroTransmission<-
+  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','HydroTransmission.tif'))
+saveRDS(HydroTransmission, file = 'tmp/HydroTransmission')
+
+#Raster roads
+RoadType<-
+  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','roadType.tif'))
+saveRDS(RoadType, file = 'tmp/roadType')
+
+RoadType_LUT <- read_csv(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/LUT','RoadType_LUT.csv'))
+saveRDS(RoadType_LUT, file = 'tmp/RoadType_LUT')
+
+ExtensiveFootprint<-
+  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','ExtensiveFootprint.tif'))
+saveRDS(ExtensiveFootprint, file = 'tmp/ExtensiveFootprint')
+
+#Load ESI Wetlands
+ESI_gdb <-file.path(ESIData,'ESI_Data.gdb')
+#wet_list <- st_layers(ESI_gdb)
+RoadKisp <- readOGR(dsn=ESI_gdb, layer = "SSAF_Ext_Clip_ConsRd_inclKispBulk_DSS_190918") %>%
+  as('sf')
+st_crs(RoadKisp)<-3005
+saveRDS(RoadKisp, file = 'tmp/RoadKisp')
+
 } else {
   vri <- readRDS(file = 'tmp/vri')
   ws <- readRDS(file = 'tmp/ws')
@@ -164,31 +229,22 @@ saveRDS(Age, file = 'tmp/Age')
   LandCover <- readRDS(file= 'tmp/LandCover')
   LandCover_LUT <- readRDS(file= 'tmp/LandCover_LUT')
   Age <- readRDS(file= 'tmp/Age')
+  LandCoverAndAge <- readRDS(file= 'tmp/LandCoverAndAge')
+  ExtensiveFootprint <- readRDS(file= 'tmp/ExtensiveFootprint')
+  RoadType <- readRDS(file= 'tmp/RoadType')
+  HydroTransmission <- readRDS(file= 'tmp/HydroTransmission')
+  Pipe <- readRDS(file= 'tmp/Pipe')
+  RailRoads <- readRDS(file= 'tmp/RailRoads')
+  LogYear <- readRDS(file= 'tmp/LogYear')
+  Wildfire_2018 <- readRDS(file= 'tmp/Wildfire_2018')
+  Wildfire_Historical <- readRDS(file= 'tmp/Wildfire_Historical')
+  BurnSeverity_2018 <- readRDS(file= 'tmp/BurnSeverity_2018')
+  BurnSeverity_2017 <- readRDS(file= 'tmp/BurnSeverity_2017')
+  RoadKisp <- readRDS(file= 'tmp/RoadKisp')
   ESI_DEM <- readRDS(file = 'tmp/ESI_DEM')
   ESI_OW <-readRDS(file='tmp/ESI_OW')
   ESI_LBN <-readRDS(file='tmp/ESI_LBN')
   ESI_Gitxsan <-readRDS(file='tmp/ESI_Gitxsan')
   ESI_Gitanyow <-readRDS(file='tmp/ESI_Gitanyow')
 }
-
-#Subset data to make exploration easier
-AOI <- ws %>%
-  filter(SUB_SUB_DRAINAGE_AREA_NAME == "Bulkley")
-
-
-#######################
-waterbodies <- study_area[0, ] # creates an empty sf dataframe
-waterbodies <- bcdc_query_geodata("cb1e3aba-d3fe-4de1-a2d4-b8b6650fb1f6", crs = epsg) %>% # lakes
-  bcdata::filter(INTERSECTS(study_area)) %>%
-  collect() %>% {if(nrow(.) > 0){rbind(., waterbodies)} else waterbodies}
-waterbodies <- bcdc_query_geodata("f7dac054-efbf-402f-ab62-6fc4b32a619e", crs = epsg) %>% # rivers
-  bcdata::filter(INTERSECTS(study_area)) %>%
-  collect() %>% {if(nrow(.) > 0){rbind(., waterbodies)} else waterbodies}
-waterbodies <- bcdc_query_geodata("93b413d8-1840-4770-9629-641d74bd1cc6", crs = epsg) %>% # wetlands
-  bcdata::filter(INTERSECTS(study_area)) %>%
-  collect() %>% {if(nrow(.) > 0){rbind(., waterbodies)} else waterbodies}
-
-
-
-
 

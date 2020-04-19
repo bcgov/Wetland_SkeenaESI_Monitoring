@@ -16,12 +16,14 @@ library(stringr)
 library(mapview)
 library(gdata)
 library(reshape2)
-#added by Gen P.
+library(exactextractr)
 library(plotKML)
 library(purrr)
 library(lubridate)
 library(tibble)
 library(janitor)
+library(magrittr)
+
 
 MonitoringSeason<-"2019"
 
@@ -38,6 +40,7 @@ GBdataOutDir <- file.path('../GB_Data/out/data')
 GBPDir <-file.path('../GB_Data/data/Population/Bear_Density_2018')
 ESIDir <- file.path('/Users/darkbabine/Dropbox (BVRC)/Projects/ESI')
 RoadDir <- file.path('/Users/darkbabine/Dropbox (BVRC)/_dev/Biodiversity/bc-raster-roads/data')
+ESIData <- file.path('/Users/darkbabine/Desktop')
 
 dir.create(file.path(OutDir), showWarnings = FALSE)
 dir.create(file.path(dataOutDir), showWarnings = FALSE)

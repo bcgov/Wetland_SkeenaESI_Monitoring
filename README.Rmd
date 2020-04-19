@@ -1,7 +1,7 @@
 ---
 output:
-  md_document:
-    variant: markdown_github
+  github_document:
+    html_preview: true
 ---
 
 ```{r, echo = FALSE}
@@ -11,33 +11,37 @@ knitr::opts_chunk$set(
   fig.path = "README-"
 )
 ```
-
-<!-- Add a project state badge
-See https://github.com/BCDevExchange/Our-Project-Docs/blob/master/discussion/projectstates.md
-If you have bcgovr installed and you use RStudio, click the 'Insert BCDevex Badge' Addin. -->
+```{r, echo=FALSE, results='asis'}
+bcgovr::insert_bcgov_devex_badge("Exploration")
+```
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Wetland_SkeenaESI_Monitoring
+This repository presents 2 analysis; 1) Set of scripts that read in the Skeena East Environmental Stewardship Initiative's (ESI) Wetland Ecosystem Services Protocol (WESP) field cards, cleanup and summarise; and 2) Generate a list of potential 2020 wetlands to sample, stratified on Biogeoclimatic Ecosystem Classification (BEC) groups and three wetland flow characterizations - connected to water, unconnected or adjacent to large water.
+
+### Data
+Field data was collected in 2019 by Skeena East ESI crews. Paper forms were transfered into excel spreadsheets.
+
+Data on wetlands was collated by Jesse Fraser using provincial inventory. Skeena-Stikine FLNRORD District office supplied an updated roads layer. 
 
 ### Usage
+There are two sets of scripts that are required for the analysis, they need to be run in order:
 
-Describe data being used (links), and how to run. Eg:
+Plot Data processing:
 
-There are four core scripts that are required for the analysis, they need to be run in order:
+- 01_load_plot_data.R
+- 02_clean_plot_data.R
 
-- 01_clean.R
-- 02_analysis.R
-- 03_visualize.R
-- 04_output.R
+Sample selection:
 
-#### Example
-
-This is a basic example which shows you how to solve a common problem:
-
-```{r example}
-## basic example code
-```
+- 01_load_spatial.R
+- 02_clean_plot_spatial.R 
+- 03_analysisBECstrata.R
+- 03_analysis_Flow.R
+- 03_analysis_sampleList.R
 
 ### Project Status
+This project is part of Skeena East ESI a collaboration of Skeena First Nations and the Provincial Government.
 
 ### Getting Help or Reporting an Issue
 
@@ -66,4 +70,4 @@ See the License for the specific language governing permissions and limitations 
 ```
 
 ---
-*This project was created using the [bcgovr](https://github.com/bcgov/bcgovr) package.* 
+This repository is maintained by [ENVEcosystems](https://github.com/orgs/bcgov/teams/envecosystems/members). 

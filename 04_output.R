@@ -12,6 +12,23 @@
 
 source('header.R')
 
-WriteXLS(WetPlotFnData,file.path(dataOutDir,paste('WetPlotFnData.xls',sep='')))
+
+WriteXLS(prop.site,file.path(dataOutDir,paste('ESI_Wetland_Strata_Disturb.xlsx',sep='')),SheetNames='Disturbance')
+
+WriteXLS(WetStrata,file.path(dataOutDir,paste('WetPlotFnData.xls',sep='')))
 
 #WriteXLS(WetPlotFnData,file.path(OutDir,paste('WetPlotFnData.xls',sep='')))
+
+
+# Now we can write out a KML file so we can
+# view this is google earth. First we need to convert to a sp object.
+out_sp <- as(WetSamples, "Spatial")
+# write out a kml
+kml(out_sp,
+    file.name    = file.path(spatialOutDir,"wetland_points.kml"),
+    points_names = out_sp$BEC.y,
+    colour    = "#FF0000",
+    alpha     = 0.6,
+    size      = 1,
+    shape     = "http://maps.google.com/mapfiles/kml/pal2/icon18.png")
+
