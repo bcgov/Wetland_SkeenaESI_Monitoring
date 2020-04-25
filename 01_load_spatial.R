@@ -181,6 +181,10 @@ LogYear<-
   raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','LogYear.tif'))
 saveRDS(LogYear, file = 'tmp/LogYear')
 
+DEM<-
+  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','DEM.tif'))
+saveRDS(DEM, file = 'tmp/DEM')
+
 #Raster rail
 RailRoads<-
   raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','RailRoads.tif'))

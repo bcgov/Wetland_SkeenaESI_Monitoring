@@ -33,29 +33,48 @@ SampleStrata<-Wetlands %>%
 write_sf(SampleStrata, file.path(spatialOutDir,"SampleStrata.gpkg"))
 
 #dplyr approach to calculating how many wetlands to do in each strata
+Wet_dt<-data.frame(Wetland_Co=SampleStrata$Wetland_Co, BEC=SampleStrata$BEC,
+                   FlowCode=SampleStrata$FlowCode, NearRd=SampleStrata$kmRd)
+
 #Calculate the number of groups, based on all the BEC flow combinations
 NSampGroups<- Wet_dt %>%
   group_by(BEC,FlowCode) %>%
-  n_groups() #31
+  n_groups() #6
 
-#To get 71 samples - sample a fraction of each of the n_groups (31) + ensure list of at
+#Initial approach was to sample according to #wetlands in each strata
+#Changed to sample evenly in each strata
+#To get 69 samples - sample a fraction of each of the n_groups (31) + ensure list of at
 #First calculate how many samples required for each strata
+#sampRequired <- Wet_dt %>%
+  #mutate(Group=group_indices(.,BEC,FlowCode)) %>%
+#  group_by(BEC,FlowCode) %>%
+  #sample_n(15)
+#  sample_frac(.00185) %>%
+#  group_by(BEC, FlowCode) %>%
+#  dplyr::summarise(nToSample=n())
+#sum(sampRequired$nToSample)
+
+#Revised approach sampling evenly across strata
 sampRequired <- Wet_dt %>%
   #mutate(Group=group_indices(.,BEC,FlowCode)) %>%
-  group_by(BEC,FlowCode) %>%
-  #sample_n(15)
-  sample_frac(.00185) %>%
   group_by(BEC, FlowCode) %>%
-  dplyr::summarise(nToSample=n())
+  dplyr::summarise(nToSample=round(100/NSampGroups,0))
 sum(sampRequired$nToSample)
 
 #Second need at least twice the sample size to accomodate unaccessible sites.
+#Initial method
+#samp2020 <- Wet_dt %>%
+#  mutate(Group=group_indices(.,BEC,FlowCode)) %>%
+#  group_by(BEC,FlowCode) %>%
+#  sample_frac(.006) %>%
+#  dplyr::filter(NearRd==1) #generates 158 cases
+
+#Identify 2xs as needed in each strata
 samp2020 <- Wet_dt %>%
   mutate(Group=group_indices(.,BEC,FlowCode)) %>%
+  dplyr::filter(NearRd==1) %>%
   group_by(BEC,FlowCode) %>%
-  #sample_n(15)
-  sample_frac(.006) %>%
-  dplyr::filter(NearRd==1) #generates 158 cases
+  sample_n(sampRequired$nToSample)
 
 #map them to see where they fall
 WetSamples<- Wetlands %>%
@@ -121,9 +140,6 @@ WriteXLS(nWetsPerGroups,file.path(dataOutDir,paste('nWetsPerGroups.xlsx',sep='')
 #Explore approaches to generating lists of wetlands for sampling based on the 4 strata
 # 1 use the splitstackshape pkg's stratified function
 library(splitstackshape)
-Wet_dt<-data.frame(Wetland_Co=SampleStrata$Wetland_Co, BEC=SampleStrata$BEC,
-                   FlowCode=SampleStrata$FlowCode, NearRd=SampleStrata$kmRd)
-
 #Do a draw for an excess of sites so a list
 #or do only samples required, then a second tier draw to pick up back up sites and those
 #far from roads

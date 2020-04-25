@@ -79,12 +79,13 @@ WetFlow<-WetlandsN %>%
                 "split_by_stream", "stream_end", "stream_start", "mean_slope_pct",
                 "max_stream_order", "Verticalflow", "Bidirectional", "Throughflow",
                 "Outflow", "Inflow", "Water") %>%
-  mutate(ConnectedWet=ifelse(Throughflow=="Yes" | Bidirectional=="Yes", 1, 0)) %>%
-  mutate(UnconnectedWet=ifelse(Verticalflow=="Yes" | Outflow=="Yes" | Inflow=="Yes",2, 0)) %>%
-  mutate(AdjacentWaterWet=ifelse(Water>0, 3, 0)) %>%
+  mutate(ConnectedWet=ifelse(Throughflow=="Yes" | Bidirectional=="Yes", 2, 0)) %>%
+  mutate(UnconnectedWet=ifelse(Verticalflow=="Yes" | Outflow=="Yes" | Inflow=="Yes",1, 0)) %>%
+  mutate(AdjacentWaterWet=ifelse(Water>0, 2, 0)) %>%
+  #mutate(AdjacentWaterWet=ifelse(Water>0, 3, 0)) %>%
   mutate(FlowCode=pmax(ConnectedWet,UnconnectedWet,AdjacentWaterWet, na.rm=FALSE))
 #if 0 ie no cases from connected, unconnected or adjacent water then assign to unconnected
-WetFlow$FlowCode[WetFlow$FlowCode==0]<-2
+WetFlow$FlowCode[WetFlow$FlowCode==0]<-1
 
 #unique(WetFlow$FlowCode)
 write_sf(WetFlow, file.path(spatialOutDir,"WetFlow.gpkg"))

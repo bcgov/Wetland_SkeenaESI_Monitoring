@@ -95,24 +95,6 @@ Wetlands <- Wetlands %>%
   mutate(wet_id=as.numeric(rownames(Wetlands)))
 saveRDS(Wetlands, file = 'tmp/AOI/Wetlands')
 #Wetlands<-readRDS(file = 'tmp/AOI/Wetlands')
-#Generate an ESI Wetlands point coverage
-wetlandsXY <- st_centroid(Wetlands)
-wetpt <- st_coordinates(wetlandsXY)
-wetpt <- wetlandsXY %>%
-  cbind(wetpt) %>%
-  st_drop_geometry()
-
-waterpt <- st_as_sf(wetpt, coords= c("X","Y"), crs = 3005) %>%
-  st_intersection(AOI)
-waterpt <- waterpt %>%
-  mutate(wet_id=as.numeric(rownames(waterpt)))
-write_sf(waterpt, file.path(spatialOutDir,"waterpt.gpkg"))
-
-#wetland points that are close to road
-waterptRoad <-st_intersection(waterpt, road_aoi)
-waterptRoad <- waterptRoad %>%
-  mutate(wet_id=as.numeric(rownames(waterptRoad)))
-write_sf(waterptRoad, file.path(spatialOutDir,"waterptRoad.gpkg"))
 
 #wetlands close to road
 wetlandRoad <-st_intersection(Wetlands, road_aoi)
@@ -130,13 +112,27 @@ Wetlands <- Wetlands %>%
   left_join(wetRoadDat)
 Wetlands$kmRd[is.na(Wetlands$kmRd)]<-0
 saveRDS(Wetlands, file = 'tmp/AOI/Wetlands')
+
+#Generate an ESI Wetlands point coverage
+wetlandsXY <- st_centroid(Wetlands)
+wetpt <- st_coordinates(wetlandsXY)
+wetpt <- wetlandsXY %>%
+  cbind(wetpt) %>%
+  st_drop_geometry()
+
+waterpt <- st_as_sf(wetpt, coords= c("X","Y"), crs = 3005) %>%
+  st_intersection(AOI)
+waterpt <- waterpt %>%
+  mutate(wet_id=as.numeric(rownames(waterpt)))
+write_sf(waterpt, file.path(spatialOutDir,"waterpt.gpkg"))
+
 #mapview(roads_sf)+mapview(road_aoi)+mapview(Wetlands)
 
 vri <- readRDS(file = 'tmp/vri') %>%
   st_buffer(0) %>%
   st_intersection(AOI)
 saveRDS(vri, file = 'tmp/AOI/vri')
-
+vri<-readRDS(file = 'tmp/AOI/vri')
 #ws <- readRDS(file = 'tmp/ws') %>%
 #  st_intersection(AOI)
 
@@ -176,6 +172,10 @@ LogYear<-
   raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','LogYear.tif')) %>%
   crop(AOI)
 saveRDS(LogYear, file = 'tmp/AOI/LogYear')
+
+DEM<-  raster(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/OutRaster','DEM.tif')) %>%
+  crop(AOI)
+saveRDS(DEM, file = 'tmp/AOI/DEM')
 
 #Raster rail
 RailRoads<-

@@ -15,8 +15,8 @@ source ('header.R')
 # Requires layers - bec_sf, waterpt - clean clips to AOI
 
 #Read in BEC_LUT to cast becs as groups from Doug Lewis/BEC program lookup table
-BECgroupSheets<- excel_sheets(file.path(DataDir,'BECv11_SubzoneVariant_GroupsVESI.xlsx'))
-BECgroupSheetsIn<-read_excel(file.path(DataDir,'BECv11_SubzoneVariant_GroupsVESI.xlsx'),
+BECgroupSheets<- excel_sheets(file.path(DataDir,'BECv11_SubzoneVariant_GroupsVESI_V3.xlsx'))
+BECgroupSheetsIn<-read_excel(file.path(DataDir,'BECv11_SubzoneVariant_GroupsVESI_V3.xlsx'),
                              sheet = BECgroupSheets[2])
 
 BECGroup_LUT<-data.frame(VARns=BECgroupSheetsIn$`BEC Unit`,

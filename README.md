@@ -8,9 +8,10 @@ This repository presents 2 analysis; 1) Set of scripts that read in the
 Skeena East Environmental Stewardship Initiative’s (ESI) Wetland
 Ecosystem Services Protocol (WESP) field cards, cleanup and summarise;
 and 2) Generate a list of potential 2020 wetlands to sample, stratified
-on Biogeoclimatic Ecosystem Classification (BEC) groups and three
-wetland flow characterizations - connected to water, unconnected or
-adjacent to large water.
+on Biogeoclimatic Ecosystem Classification (BEC) groups and two wetland
+flow characterizations - connected to water or unconnected; and 3)
+compiles Tier 1.5 wetland Climate BC data for wetlands and landform
+position.
 
 ### Data
 
@@ -20,6 +21,11 @@ were transfered into excel spreadsheets.
 Data on wetlands was collated by Jesse Fraser using provincial
 inventory. Skeena-Stikine FLNRORD District office supplied an updated
 roads layer.
+
+ClimateBC variables - <http://climatebc.ca>
+
+Landform data from Adaptwest’s landfacets
+<https://adaptwest.databasin.org/pages/adaptwest-landfacets>
 
 ### Usage
 
@@ -34,10 +40,17 @@ Plot Data processing:
 Sample selection:
 
   - 01\_load\_spatial.R
-  - 02\_clean\_plot\_spatial.R
-  - 03\_analysisBECstrata.R
-  - 03\_analysis\_Flow.R
+  - 02\_clean\_spatial.R
+  - 03\_analysis\_BECStrata.R
+  - 03\_analysis\_FlowStrata.R
   - 03\_analysis\_sampleList.R
+
+Tier 1.5 wetalnd data:
+
+  - 01\_load\_spatial.R
+  - 02\_clean\_spatial.R
+  - 03\_analysis\_15Data.R
+  - 04\_output.R
 
 ### Project Status
 
