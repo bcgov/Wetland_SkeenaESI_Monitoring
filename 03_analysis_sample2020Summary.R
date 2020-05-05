@@ -10,6 +10,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
+
+#Read ins 2020 samples
+SampleStrataS<-readRDS(file='tmp/AOI/SampleStrataS')
+
 #Use a function to get #categories, #wets
 RequireFn <- function(dataset, RequireNIn){
   dataset %>%
@@ -28,3 +32,5 @@ requs<-data.frame(ReqN=c(1,2,3,4,5,6,7,8,9),
                         'LanCoverLabel', 'DisturbType'))
 df<-lapply(requs[,1], function(i) RequireFn(SampleStrataS, i))
 ScoreCard2020<-ldply(df,data.frame)
+
+saveRDS(ScoreCard2020, file = 'tmp/AOI/ScoreCard2020')

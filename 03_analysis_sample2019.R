@@ -9,11 +9,12 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
-
+SampleStrata<-readRDS(file='tmp/AOI/SampleStrata')
 SampleStrata2019<-SampleStrata
 #Set Sampled in SampleStrata where it has been sampled and set others to 0
 SampleStrata2019$Sampled <- wet_site2019[match(SampleStrata2019$Wetland_Co, wet_site2019$Wetland_Co),2]
 SampleStrata2019[is.na(SampleStrata2019)] <- 0
+saveRDS(SampleStrata2019, file = 'tmp/AOI/SampleStrata2019')
 
 #Use a function to get #categories, #wets
 RequireFn <- function(dataset, RequireNIn){
@@ -34,3 +35,5 @@ requs<-data.frame(ReqN=c(1,2,3,4,5,6,7,8,9),
 
 df<-lapply(requs[,1], function(i) RequireFn(SampleStrata2019, i))
 ScoreCard2019<-ldply(df,data.frame)
+
+saveRDS(ScoreCard2019, file = 'tmp/AOI/ScoreCard2019')

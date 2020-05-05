@@ -13,8 +13,8 @@
 source ('header.R')
 
 #builds off 03_analysis_sampleRequirements.R
-Wet_sampledS<-Wet_sampledR
-SampleStrataS<-SampleStrataR
+Wet_sampledS<-readRDS(file='tmp/AOI/Wet_sampledR')
+SampleStrataS<-readRDS(file='tmp/AOI/SampleStrataR')
 
 #Calculate the number of groups, based on all the BEC flow combinations
 NSampGroups<- SampleStrataS %>%
@@ -46,7 +46,7 @@ requs<-data.frame(ReqN=c(1),
 #Set variables
 j<-1
 NWetsToSample<-100
-NReplicates<-20
+NReplicates<-16
 minSampled<-1
 #Initialize a score card listing what requirement has been sampled
 df<-lapply(requs[,1], function(i) RequireFn(SampleStrataS, i))
@@ -59,6 +59,7 @@ while (minSampled < NReplicates) {
   #Remove wetlands already sampled from the SampleStrata pool
   #and those far from roads
   SampleStrataPool <- SampleStrataS %>%
+    filter(Sampled ==0) %>%
     filter(Sampled < NReplicates) %>%
     filter(kmRd==1)
 
@@ -89,6 +90,10 @@ while (minSampled < NReplicates) {
   minSampled<-min(ScoreCardS$nSampled)
   #get another wetland to sample
 }
+
+saveRDS(SampleStrataS, file = 'tmp/AOI/SampleStrataS')
+saveRDS(Wet_sampledS, file = 'tmp/AOI/Wet_sampledS')
+saveRDS(ScoreCardS, file = 'tmp/AOI/ScoreCardS')
 
 #data check
 tt<-subset(SampleStrataS, Sampled==1)

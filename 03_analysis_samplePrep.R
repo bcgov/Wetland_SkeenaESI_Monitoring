@@ -46,6 +46,8 @@ SampleStrata<-Wetlands %>%
                 Throughflow=Throughflow.y, Outflow=Outflow.y, Inflow=Inflow.y,
                 LanCoverLabel, DisturbType)
 
+saveRDS(SampleStrata, file = 'tmp/AOI/SampleStrata')
+
 #Load in sits previously surveyed
 #Read in cleaned wetland plot data
 site_data <- read_excel(file.path(dataOutDir,'WetPlots.xlsx'), 1)
@@ -62,8 +64,11 @@ wet_site2019<- SampleStrata %>%
   dplyr::select(Wetland_Co, Sampled, kmRd, StrataGroup, House_Name, Dist_to_Road, BEC,
                 FlowCode, Verticalflow, Bidirectional,Throughflow, Outflow, Inflow,
                 LanCoverLabel, DisturbType)
+saveRDS(wet_site2019, file = 'tmp/AOI/wet_site2019')
 
 StrataGroup<-SampleStrata %>%
   group_by(StrataGroup, BEC, FlowCode) %>%
   dplyr::summarise(nWetlands=n())
+
+saveRDS(StrataGroup, file = 'tmp/AOI/StrataGroup')
 
