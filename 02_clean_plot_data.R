@@ -179,7 +179,7 @@ mutate(pc_cover = ifelse(pc_cover == "T", 1, pc_cover),
 #Clean up Plot Function Data
 #remove unnecessary columns and transform
 WetPlotFnData <- WetPlotFnDataIn %>%
-  dplyr::select(8:39) %>%
+  dplyr::select(8:38) %>%
   t() %>%
   as.data.frame()
 
@@ -195,11 +195,13 @@ WetPlotFnData <- WetPlotFnData[ !duplicated(names(WetPlotFnData)) ]
 ColsToDrop <- WetPlotFnData[1,]
 WetPlotFnData <- WetPlotFnData %>%
   dplyr::select(-c(colnames(ColsToDrop)[colSums(is.na(ColsToDrop)) > 0]))
+#Make newid column numeric
+WetPlotFnData$newid<-as.numeric(WetPlotFnData$newid)
+#Clean up row numbers
+row.names(WetPlotFnData) <- NULL
 #Break function data into 2 data.frames so can write to xlsx (otherwise over 256 columns)
 WetPlotFnData1<- WetPlotFnData[,1:187] # to F39 questions
 WetPlotFnData2<- WetPlotFnData[,c(1:3,188:ncol(WetPlotFnData))] # F40 questions and greater
-
-
 
 
 #Wetland Stressor Data - sheet 7
@@ -219,7 +221,6 @@ colnames(WetStress)<-unlist(as.list(WetStress[1,]))
 WetStress<-WetStress[8:nrow(WetStress),2:ncol(WetStress)] %>%
   tibble::rownames_to_column("fid") %>%
   right_join(newid_LUT)
-
 
 ## write out data
 #Take processed data make alist and write to multi-tab spreadsheet for use in R course

@@ -46,6 +46,7 @@ writeRaster(TreesR, filename=file.path(spatialOutDir,"TreesR.tif"), format="GTif
 # Do a similar draw pulling the other land cover veg attributes from BCLCS_LEVEL_4
 # fasterize
 Veg_LUT=data.frame(Veg=c('ST','SL','HE','HF','HG','BY','BM','BL'),Vcode=c(4,5,6,7,8,9,10,11))
+Veg_LUT=data.frame(Veg=c('ST','SL','HE','HF','HG','BY','BM','BL'),Vcode=c(4,5,6,7,8,9,10,11))
 
 Veg<- vri %>%
   filter(BCLCS_LEVEL_4 %in% c('ST','SL','HE','HF','HG','BY','BM','BL')) %>%
@@ -59,35 +60,55 @@ VegR<- fasterize(Veg,ProvRast,field='Vcode') %>%
 VegR[is.na(VegR)] <- 0
 writeRaster(VegR, filename=file.path(spatialOutDir,"VegR.tif"), format="GTiff", overwrite=TRUE)
 
-#Join trees and veg making non-tree deciduous
-VegR[VegR>0]<-3
-VegTree<-VegR+TreesR
+#Join trees and veg making - 4 categories with last being non-tree deciduous
+VegR[VegR>0]<-4
+#VegTree<-VegR+TreesR
+VegTree<-max(VegR,TreesR)
+
+#If age raster is >0 and typed as 0 (ie VRI is missing and therefore not captured) change to conifer
+Age<- readRDS(file='tmp/AOI/Age')
+VegTree[(Age>0 & VegTree==0)]<-1
 writeRaster(VegTree, filename=file.path(spatialOutDir,"VegTree.tif"), format="GTiff", overwrite=TRUE)
+
+#Make a single land type raster layer
+LandCoverAndAge<-readRDS(file = 'tmp/AOI/LandCoverAndAge')
+LandCoverAndAge[LandCoverAndAge>0 | VegTree>0] <- 0
+LCstrata<-sum(VegTree, LandCoverAndAge)
+writeRaster(LCstrata, filename=file.path(spatialOutDir,"LCstrata.tif"), format="GTiff", overwrite=TRUE)
+
+#Read in 200m buffered wetlands created by 03_analysis_DisturbanceStrata.R
+WetlandsB<-st_read(file.path(spatialOutDir,"WetlandsB200.gpkg"))
+Wetlands_E <- data.frame(LTypeCode=exact_extract(LCstrata, WetlandsB, 'max'))
+Wetlands_E$wet_id <-as.numeric(rownames(Wetlands_E))
+Wetlands_LC <- Wetlands %>%
+  mutate(wet_id=as.numeric(rownames(WetlandsB))) %>%
+  left_join(Wetlands_E)
+write_sf(Wetlands_LC, file.path(spatialOutDir,"Wetlands_LC.gpkg"))
 
 #### Second Part #####
 #Set all water to NA so can be filled
-LandCoverAndAge<-readRDS(file = 'tmp/AOI/LandCoverAndAge')
-LandCoverAndAge[LandCoverAndAge %in% c(-28,-27,-23,-22,-21,-20)] <- NA
+#LandCoverAndAge<-readRDS(file = 'tmp/AOI/LandCoverAndAge')
+#LandCoverAndAge[LandCoverAndAge %in% c(-28,-27,-23,-22,-21,-20)] <- NA
 
 # Join the landcover, trees and veg together - replacing the >0 raster values
 # in the LandCoverAndAge raster with the TreesR and VegR rasters
-LandCoverAndAge[LandCoverAndAge>0 | VegTree>0] <- 0
-LCstrata<-sum(VegTree, LandCoverAndAge)
+#LandCoverAndAge[LandCoverAndAge>0 | VegTree>0] <- 0
+#LCstrata<-sum(VegTree, LandCoverAndAge)
 
 #Fill in water with larget neighbour
 #Set all water to NA so can be filled
-LCstrata[LCstrata %in% c(-28,-27,-23,-22,-21,-20)] <- NA
+#LCstrata[LCstrata %in% c(-28,-27,-23,-22,-21,-20)] <- NA
 
 #Function to nibble into water features to ensure wetlands land in a non-water
 #dominant adjacent feature - inspired by this link https://stackoverflow.com/questions/36960974/how-to-replace-raster-values-less-than-0-to-na-in-r-code/49159943
 #Fill with highest value - will be oldest forest or if non-forest then human disturbed, then shrubs
-fill.na <- function(x, i=5) {
-  if( is.na(x)[i] ) {
-    return( modal(x, ties='highest',na.rm=TRUE))
-  } else {
-    return( round(x[i],0) )
-  }
-}
+#fill.na <- function(x, i=5) {
+#  if( is.na(x)[i] ) {
+#    return( modal(x, ties='highest',na.rm=TRUE))
+#  } else {
+#    return( round(x[i],0) )
+#  }
+#}
 #Pass the fill.na function to raster::focal and check results.
 #The pad argument creates virtual rows/columns of NA values to keep the
 #vector length constant along the edges of the raster.
@@ -96,30 +117,32 @@ fill.na <- function(x, i=5) {
 #Do the fill twice to nibble into large lakes sufficient to assign areas
 #where wetlands may occur to their largest neighbour
 
-LCstrataFilled <- focal(LCstrata, w = matrix(1,3,3), fun = fill.na,
-                               pad = TRUE, na.rm = FALSE ) %>%
-  focal(w = matrix(1,3,3), fun = fill.na,pad = TRUE, na.rm = FALSE )
-writeRaster(LCstrataFilled, filename=file.path(spatialOutDir,"LCstrataFilled.tif"), format="GTiff", overwrite=TRUE)
+#LCstrataFilled <- focal(LCstrata, w = matrix(1,3,3), fun = fill.na,
+#                               pad = TRUE, na.rm = FALSE ) %>%
+#  focal(w = matrix(1,3,3), fun = fill.na,pad = TRUE, na.rm = FALSE )
+#writeRaster(LCstrataFilled, filename=file.path(spatialOutDir,"LCstrataFilled.tif"), format="GTiff", overwrite=TRUE)
 
 #Read in the point coverage of wetland centroids
 #waterpt<-st_read(file.path(spatialOutDir,"waterptRoad.gpkg"))
-waterpt<-st_read(file.path(spatialOutDir,"waterpt.gpkg"))
+#waterpt<-st_read(file.path(spatialOutDir,"waterpt.gpkg"))
 
 #extract the raster value from the Land cover map
-lt_pts <- raster::extract(LCstrataFilled, waterpt, sp=TRUE) %>%
-  st_as_sf() %>%
-  dplyr::rename(LandCoverCode=layer)
+#lt_pts <- raster::extract(LCstrataFilled, waterpt, sp=TRUE) %>%
+#  st_as_sf() %>%
+#  dplyr::rename(LandCoverCode=layer)
 
 #Look up the values in a table and make a list
-LandCover_LUT <- read_excel(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/LUT',
-                 'LandCoverLookUp_LUT.xlsx'),sheet=1)[1:21,] %>%
-                  rbind(data.frame(LanCoverLabel=c('UForest','Conifer','Broad Leaf','Mixed'), LandCoverCode=c(0,1,2,3)))
+#LandCover_LUT <- read_excel(file.path(ESIDir,'Data/DataScience/SkeenaESI_LandCover_Age_Human_Footprint/LUT',
+#                 'LandCoverLookUp_LUT.xlsx'),sheet=1)[1:21,] %>%
+#                  rbind(data.frame(LanCoverLabel=c('UForest','Conifer','Broad Leaf','Mixed'), LandCoverCode=c(0,1,2,3)))
 
-# make a list of unique land types
-lt.ls <- lt_pts %>%
+LandCover_LUT <- data.frame(LTypeCode=c(0,1,2,3,4),
+                            LanCoverLabel=c('UForest','Conifer','Broad Leaf','Mixed', 'Non-tree decid'))
+
+lt.ls <- Wetlands_LC%>%
   st_drop_geometry() %>%
   left_join(LandCover_LUT) %>%
-  dplyr::select(Wetland_Co, wet_id, LandCoverCode, LanCoverLabel)
+  dplyr::select(Wetland_Co, wet_id, LTypeCode, LanCoverLabel)
 
 WriteXLS(lt.ls,file.path(dataOutDir,paste('ltls.xlsx',sep='')))
 

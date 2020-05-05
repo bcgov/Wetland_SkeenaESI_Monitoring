@@ -21,3 +21,11 @@ st_drop_geometry()
 
 #write file to csv - change line feed from unix style to windows otherwise ClimateBC errors
 write_csv(Wetlands_ClimateLandForm_dat, path=file.path(dataOutDir, 'Wetlands_ClimateLandForm_dat.csv'))
+
+#Write out 2019 wetland data
+WetData<-list(wet_site2019,ScoreCard2019,StrataGroup)
+WetDataNames<-c('wet_site2019','ScoreCard2019','StrataGroup')
+WriteXLS(WetData,file.path(dataOutDir,paste('WetPlots2019.xlsx',sep='')),SheetNames=WetDataNames)
+
+
+

@@ -124,6 +124,7 @@ waterpt <- st_as_sf(wetpt, coords= c("X","Y"), crs = 3005) %>%
   st_intersection(AOI)
 waterpt <- waterpt %>%
   mutate(wet_id=as.numeric(rownames(waterpt)))
+#st_crs(waterpt)<-3005
 write_sf(waterpt, file.path(spatialOutDir,"waterpt.gpkg"))
 
 #mapview(roads_sf)+mapview(road_aoi)+mapview(Wetlands)
@@ -223,12 +224,16 @@ saveRDS(BurnSeverity_2017, file = 'tmp/AOI/BurnSeverity_2017')
 
 ESI_DEM <- readRDS(file = 'tmp/ESI_DEM')
 ESI_OW <-readRDS(file='tmp/ESI_OW') %>%
+  st_set_crs(3005) %>%
   st_intersection(AOI)
 ESI_LBN <-readRDS(file='tmp/ESI_LBN') %>%
+  st_set_crs(3005) %>%
   st_intersection(AOI)
 ESI_Gitxsan <-readRDS(file='tmp/ESI_Gitxsan') %>%
+  st_set_crs(3005) %>%
   st_intersection(AOI)
 ESI_Gitanyow <-readRDS(file='tmp/ESI_Gitanyow') %>%
+  st_set_crs(3005) %>%
   st_intersection(AOI)
 
 

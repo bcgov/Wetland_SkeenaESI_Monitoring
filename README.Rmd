@@ -12,12 +12,12 @@ knitr::opts_chunk$set(
 )
 ```
 ```{r, echo=FALSE, results='asis'}
-bcgovr::insert_bcgov_devex_badge("Exploration")
+#bcgovr::insert_bcgov_devex_badge("Exploration")
 ```
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Wetland_SkeenaESI_Monitoring
-This repository presents 2 analysis; 1) Set of scripts that read in the Skeena East Environmental Stewardship Initiative's (ESI) Wetland Ecosystem Services Protocol (WESP) field cards, cleanup and summarise; and 2) Generate a list of potential 2020 wetlands to sample, stratified on Biogeoclimatic Ecosystem Classification (BEC) groups and two
+This repository presents 3 analysis; 1) Set of scripts that read in the Skeena East Environmental Stewardship Initiative's (ESI) Wetland Ecosystem Services Protocol (WESP) field cards, cleanup and summarise; 2) Generate a list of potential 2020 wetlands to sample, stratified on Biogeoclimatic Ecosystem Classification (BEC) groups and two
 wetland flow characterizations - connected to water or unconnected; and 3) compiles Tier 1.5 wetland Climate BC data for wetlands and landform position.
 
 ### Data
@@ -31,12 +31,14 @@ Landform data from Adaptwest's landfacets https://adaptwest.databasin.org/pages/
 
 
 ### Usage
-There are two sets of scripts that are required for the analysis, they need to be run in order:
+There are three sets of scripts that are contained in the repo, they need to be run in order, note there is some duplication between sets:
 
 Plot Data processing:
 
 - 01_load_plot_data.R
 - 02_clean_plot_data.R
+- 03_analysis_samplePrep.R
+- 03_analysis_sample2019.R
 
 Sample selection:
 
@@ -44,14 +46,20 @@ Sample selection:
 - 02_clean_spatial.R 
 - 03_analysis_BECStrata.R
 - 03_analysis_FlowStrata.R
-- 03_analysis_sampleList.R
+- 03_analysis_LandTypeStrataN.R
+- 03_analysis_DisturbanceStrataN.R
+- 03_analysis_samplePrep.R
+- 03_analysis_sampleAdminUnits.R
+- 03_analysis_sampleRequirements.R
+- 03_analysis_sampleAddStrata.R
+- 03_analysis_sample2020Summary.R
+- 04_output.R
 
 Tier 1.5 wetalnd data:
 
 - 01_load_spatial.R
 - 02_clean_spatial.R 
 - 03_analysis_15Data.R
-- 04_output.R
 
 ### Project Status
 This project is part of Skeena East ESI a collaboration of Skeena First Nations and the Provincial Government.

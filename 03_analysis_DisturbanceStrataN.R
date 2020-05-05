@@ -89,13 +89,17 @@ LandDisturb<-max(ExtensiveFootprint, LinearDisturb, LogYearClassed, Fire20YearR,
 #writeRaster(WetlandsR, filename=file.path(spatialOutDir,"WetlandsR.tif"), format="GTiff", overwrite=TRUE)
 
 #1 buffer wetland approach
+Wetlands<-readRDS(file = 'tmp/AOI/Wetlands')
+
 WetlandsB<-st_buffer(Wetlands, dist=200) %>%
   st_collection_extract("POLYGON")
+write_sf(WetlandsB, file.path(spatialOutDir,"WetlandsB200.gpkg"))
+
 #Take max disturbance and assign to wetland, such if any urban then urban disturbance, etc
 #alternative is to take most common - but likley larger effect if more severe disturbance
 #WetlandsE1 <- raster::extract(LandDisturb, WetlandsB, sp=TRUE)
 #WetlandsE3 <- exact_extract(LandDisturb, WetlandsB2) - returns propotion of each
-Wetlands_E <- data.frame(DisturbCode=exact_extract(LandDisturb, WetlandsB2, 'max'))
+Wetlands_E <- data.frame(DisturbCode=exact_extract(LandDisturb, WetlandsB, 'max'))
 Wetlands_E$wet_id <-as.numeric(rownames(Wetlands_E))
 Wetlands_LD <- Wetlands %>%
   mutate(wet_id=as.numeric(rownames(WetlandsB))) %>%

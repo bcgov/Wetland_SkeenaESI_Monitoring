@@ -1,14 +1,13 @@
 
-<a id="devex-badge" rel="Exploration" href="https://github.com/BCDevExchange/assets/blob/master/README.md"><img alt="Being designed and built, but in the lab. May change, disappear, or be buggy." style="border-width:0" src="https://assets.bcdevexchange.org/images/badges/exploration.svg" title="Being designed and built, but in the lab. May change, disappear, or be buggy." /></a>
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Wetland\_SkeenaESI\_Monitoring
 
-This repository presents 2 analysis; 1) Set of scripts that read in the
+This repository presents 3 analysis; 1) Set of scripts that read in the
 Skeena East Environmental Stewardship Initiative’s (ESI) Wetland
 Ecosystem Services Protocol (WESP) field cards, cleanup and summarise;
-and 2) Generate a list of potential 2020 wetlands to sample, stratified
-on Biogeoclimatic Ecosystem Classification (BEC) groups and two wetland
+2) Generate a list of potential 2020 wetlands to sample, stratified on
+Biogeoclimatic Ecosystem Classification (BEC) groups and two wetland
 flow characterizations - connected to water or unconnected; and 3)
 compiles Tier 1.5 wetland Climate BC data for wetlands and landform
 position.
@@ -29,13 +28,15 @@ Landform data from Adaptwest’s landfacets
 
 ### Usage
 
-There are two sets of scripts that are required for the analysis, they
-need to be run in order:
+There are three sets of scripts that are contained in the repo, they
+need to be run in order, note there is some duplication between sets:
 
 Plot Data processing:
 
   - 01\_load\_plot\_data.R
   - 02\_clean\_plot\_data.R
+  - 03\_analysis\_samplePrep.R
+  - 03\_analysis\_sample2019.R
 
 Sample selection:
 
@@ -43,14 +44,20 @@ Sample selection:
   - 02\_clean\_spatial.R
   - 03\_analysis\_BECStrata.R
   - 03\_analysis\_FlowStrata.R
-  - 03\_analysis\_sampleList.R
+  - 03\_analysis\_LandTypeStrataN.R
+  - 03\_analysis\_DisturbanceStrataN.R
+  - 03\_analysis\_samplePrep.R
+  - 03\_analysis\_sampleAdminUnits.R
+  - 03\_analysis\_sampleRequirements.R
+  - 03\_analysis\_sampleAddStrata.R
+  - 03\_analysis\_sample2020Summary.R
+  - 04\_output.R
 
 Tier 1.5 wetalnd data:
 
   - 01\_load\_spatial.R
   - 02\_clean\_spatial.R
   - 03\_analysis\_15Data.R
-  - 04\_output.R
 
 ### Project Status
 
