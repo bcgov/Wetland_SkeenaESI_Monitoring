@@ -27,5 +27,10 @@ WetData<-list(wet_site2019,ScoreCard2019,StrataGroup)
 WetDataNames<-c('wet_site2019','ScoreCard2019','StrataGroup')
 WriteXLS(WetData,file.path(dataOutDir,paste('WetPlots2019.xlsx',sep='')),SheetNames=WetDataNames)
 
+#Write out 2020 wetland data
+WetData<-list(Wet_sampledS,ScoreCard2020,StrataGroup)
+WetDataNames<-c('wet_site2020','ScoreCard2020','StrataGroup')
+WriteXLS(WetData,file.path(dataOutDir,paste('WetPlots2020.xlsx',sep='')),SheetNames=WetDataNames)
+
 
 
