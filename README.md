@@ -5,21 +5,25 @@
 
 This repository presents 3 analysis; 1) Set of scripts that read in the
 Skeena East Environmental Stewardship Initiative’s (ESI) Wetland
-Ecosystem Services Protocol (WESP) field cards, cleanup and summarise;
-2) Generate a list of potential 2020 wetlands to sample, stratified on
-Biogeoclimatic Ecosystem Classification (BEC) groups and two wetland
-flow characterizations - connected to water or unconnected; and 3)
-compiles Tier 1.5 wetland Climate BC data for wetlands and landform
-position.
+Ecosystem Services Protocol (WESP) 2019 field cards, cleanup and
+summarize; 2) Generate a list of potential 2020 wetlands to sample,
+stratified based on groupings of Biogeoclimatic Ecosystem Classification
+(BEC) zones and selected to capture range of wetland flow
+characterizations, adjacent land type and disturbance; and 3) compiles
+Tier 1.5 wetland date, specifically indicators downloaded from Climate
+BC and landform position.
 
 ### Data
 
 Field data was collected in 2019 by Skeena East ESI crews. Paper forms
-were transfered into excel spreadsheets.
+were transferred onto excel spreadsheets.
 
-Data on wetlands was collated by Jesse Fraser using provincial
-inventory. Skeena-Stikine FLNRORD District office supplied an updated
-roads layer.
+Data on wetlands was collated by Jesse Fraser using provincial and
+regional inventory. Skeena-Stikine FLNRORD District office supplied an
+updated roads layer - available upon request.
+
+Raster Land type, forest age and human footprint ESI specific layers
+used in this analysis are also available upon request
 
 ClimateBC variables - <http://climatebc.ca>
 
@@ -29,35 +33,45 @@ Landform data from Adaptwest’s landfacets
 ### Usage
 
 There are three sets of scripts that are contained in the repo, they
-need to be run in order, note there is some duplication between sets:
+need to be run in order, note there is some duplication between sets\*:
 
 Plot Data processing:
 
-  - 01\_load\_plot\_data.R
-  - 02\_clean\_plot\_data.R
-  - 03\_analysis\_samplePrep.R
-  - 03\_analysis\_sample2019.R
+  - plot\_01\_load\_2019.R
+  - plot\_02\_clean\_data.R
+  - data is then passed to Wet\_03\_analysis\_6\_samplePrep.R
 
 Sample selection:
 
-  - 01\_load\_spatial.R
-  - 02\_clean\_spatial.R
-  - 03\_analysis\_BECStrata.R
-  - 03\_analysis\_FlowStrata.R
-  - 03\_analysis\_LandTypeStrataN.R
-  - 03\_analysis\_DisturbanceStrataN.R
-  - 03\_analysis\_samplePrep.R
-  - 03\_analysis\_sampleAdminUnits.R
-  - 03\_analysis\_sampleRequirements.R
-  - 03\_analysis\_sampleAddStrata.R
-  - 03\_analysis\_sample2020Summary.R
-  - 04\_output.R
+  - Wet\_01\_load\_spatial.R\*
+  - Wet\_02\_clean\_1\_spatial.R\*
+  - Wet\_02\_clean\_2\_spatial\_AddWshds.R
+  - Wet\_02\_clean\_3\_spatial\_AddFREP.R
+  - Wet\_02\_clean\_4\_spatial\_AddCGL.R
+  - Wet\_03\_analysis\_1\_AdminUnits.R
+  - Wet\_03\_analysis\_2\_BECStrata.R
+  - Wet\_03\_analysis\_3\_FlowStrata.R
+  - Wet\_03\_analysis\_4\_LandTypeStrataN.R
+  - Wet\_03\_analysis\_5\_DisturbanceStrataN.R
+  - Wet\_03\_analysis\_6\_samplePrep.R
+  - Wet\_03\_analysis\_7\_2019\_ReportCard.R
+  - Wet\_03\_analysis\_8\_sampleRequirements.R
+  - Wet\_03\_analysis\_9\_sampleAddStrata.R
+  - Wet\_03\_analysis\_10\_2020\_ReportCard.R
+  - Wet\_03\_analysis\_11\_sample2020PickNewSite.R
+  - Wet\_03\_analysis\_12\_2020SiteAdjust.R
+  - Wet\_03\_analysis\_13\_sample2020RevisedSummary.R
+  - Wet\_04\_output\_1.R\*
+  - Wet\_04\_output\_2.R
 
-Tier 1.5 wetalnd data:
+Tier 1.5 wetland data:
 
-  - 01\_load\_spatial.R
-  - 02\_clean\_spatial.R
-  - 03\_analysis\_15Data.R
+  - Wet\_01\_load\_spatial.R\*
+  - Wet\_02\_clean\_1\_spatial.R\*
+  - Tier1.5\_03\_analysis.R
+  - Wet\_04\_output\_1.R\*
+
+\*used for multipled tasks
 
 ### Project Status
 

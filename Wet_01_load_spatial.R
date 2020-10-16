@@ -23,23 +23,32 @@ ESI <- st_cast(ESIin, "MULTIPOLYGON")
 saveRDS(ESI, file = ESI_file)
 
 #Load ESI supporting wetland data
-Wet_gdb <-file.path(WetspatialDir,'Wetland_Assessment_Level1_InputData.gdb')
-wet_list <- st_layers(Wet_gdb)
-
-#Load ESI Wetlands
-WetW_gdb <-file.path(WetspatialDir,'Wetland_T1','Skeena_ESI_T1_Wetland_20191219.gdb')
-#wet_list <- st_layers(WetW_gdb)
-Wetlands <- readOGR(dsn=WetW_gdb, layer = "Skeena_ESI_T1_Wetland_20191219") %>%
+#Wetlands with full attributes
+WetW_gdb <-file.path(SyncDir,'Wetland/Tier 1/Assessment/Data/Skeena_ESI_T1_Wetland_200612.gdb')
+wet_list <- st_layers(WetW_gdb)
+Wetlands <- readOGR(dsn=WetW_gdb, layer = "Skeena_ESI_T1_Wetland_Update_200612")  %>%
   as('sf')
+
+#Read in ESI_basic_Wetland_Complexes_190912 to link to plot data
+WetlandRaw <- st_read(file.path(SyncDir,'Wetland/Wetland Features/Consolidated Wetland and Wetland Complexes Spatial/ESI_basic_Wetland_Complexes_190912.gpkg')) %>%
+  as('sf') %>%
+  mutate(Wetland_Co=Wetland_Complex_ID) %>%
+  dplyr::select(Wetland_Co, OBJECTID) %>%
+  st_drop_geometry()
+
+Wetlands<-Wetlands %>%
+  left_join(WetlandRaw,by = 'Wetland_Co')
+
 Wetlands <- Wetlands %>%
-  mutate(wet_id=as.numeric(rownames(Wetlands)))
+  mutate(wet_id=as.numeric(rownames(Wetlands))) %>%
+  mutate(Wet_plotLink=OBJECTID)
 st_crs(Wetlands)<-3005
 saveRDS(Wetlands, file = 'tmp/Wetlands')
 
 #Read in all the fire layers
 WetInData<-file.path(WetspatialDir,'Wetland_Assessment_Level1_InputData.gdb')
-wetin_list <- st_layers(WetInData)
 
+wetin_list <- st_layers(WetInData)
 Wildfire_2018 <- readOGR(dsn=WetInData, layer = "Wildfire_2018_181128")  %>%
   as('sf')
 st_crs(Wildfire_2018)<-3005
@@ -82,22 +91,24 @@ saveRDS(ws, file = 'tmp/ws')
 #mapview::mapview(ws)
 
 #FWA_Streams
-Streams <- read_sf(Wet_gdb, layer = "FWA_Streams")
+
+#Streams <- read_sf(Wet_gdb, layer = "FWA_Streams")
+Streams <- read_sf(WetInData, layer = "FWA_Streams")
 st_crs(Streams) <- 3005
 saveRDS(Streams, file = 'tmp/Streams')
 
 #FWA_Rivers
-Rivers <- read_sf(Wet_gdb, layer = "FWA_Rivers")
+Rivers <- read_sf(WetInData, layer = "FWA_Rivers")
 st_crs(Rivers) <- 3005
 saveRDS(Rivers, file = 'tmp/Rivers')
 
 #FWA_Lakes
-waterbodies <- read_sf(Wet_gdb, layer = "FWA_Lakes")
+waterbodies <- read_sf(WetInData, layer = "FWA_Lakes")
 st_crs(waterbodies) <- 3005
 saveRDS(waterbodies, file = 'tmp/waterbodies')
 
 # read in the VRI data
-vri <- read_sf(Wet_gdb, layer = 'VRI_LYRR1_181128')
+vri <- read_sf(WetInData, layer = 'VRI_LYRR1_181128')
 st_crs(vri) <- 3005
 saveRDS(vri, file = 'tmp/vri')
 
@@ -111,9 +122,24 @@ saveRDS(ESI_LBN, file='tmp/ESI_LBN')
 ESI_Gitxsan <- read_sf(file.path(ESIDir,'Data/Library/FN'), layer = "gitxsan_houses_v5") %>%
   st_transform(3005)
 saveRDS(ESI_Gitxsan, file='tmp/ESI_Gitxsan')
+ESI_Gitxsan_wshd <- read_sf(file.path(ESIDir,'Data/Library/FN'), layer = "gitxsan_admin_watershed_v2") %>%
+  st_transform(3005)
+saveRDS(ESI_Gitxsan_wshd, file='tmp/ESI_Gitxsan_wshd')
+FN_boundaries <- read_sf(file.path(ESIDir,'Data/FN_Boundaries'), layer = "FN_Boundaries") %>%
+  st_transform(3005)
+saveRDS(FN_boundaries, file='tmp/FN_boundaries')
 ESI_Gitanyow <- read_sf(file.path(ESIDir,'Data/Library/FN'), layer = "Gitanyow_Houses") %>%
   st_transform(3005)
 saveRDS(ESI_Gitanyow, file='tmp/ESI_Gitanyow')
+
+FN_boundaries <- st_read(file.path(ESIDir,'Data/FN_Boundaries',"SSAF_coreFN_200513.gpkg")) %>%
+  st_transform(3005)
+saveRDS(FN_boundaries, file='tmp/FN_boundaries')
+waterpt<-st_read(file.path(spatialOutDir,"waterpt.gpkg"))
+
+#Aggregated First Nation areas:
+
+
 
 # Download BEC - # Gets bec_sf zone shape and filters the desired subzones
 bec_sf <- bec(class = "sf") %>%
@@ -220,6 +246,28 @@ RoadKisp <- readOGR(dsn=ESI_gdb, layer = "SSAF_Ext_Clip_ConsRd_inclKispBulk_DSS_
 st_crs(RoadKisp)<-3005
 saveRDS(RoadKisp, file = 'tmp/RoadKisp')
 
+#Load FREP blocks
+FREP_gdb <- file.path(FREPDir,'2020_PossibleFREP_Wetlands_Locations_20200605.gdb')
+FREP_list <- st_layers(FREP_gdb)
+
+FREPblocksDSS <- readOGR(dsn=FREP_gdb, layer=FREP_list$name[1]) %>%
+  as('sf') %>%
+  dplyr::select(OPENING_ID, DISTRICT_NAME, OPENING_GROSS_AREA, DISTURBANCE_END_DATE)
+st_crs(FREPblocksDSS)<-3005
+
+FREPblocksNA <- readOGR(dsn=FREP_gdb, layer=FREP_list$name[2]) %>%
+  as('sf') %>%
+  dplyr::select(OPENING_ID, DISTRICT_NAME, OPENING_GROSS_AREA, DISTURBANCE_END_DATE)
+st_crs(FREPblocksNA)<-3005
+
+FREPblocks <- rbind(FREPblocksDSS, FREPblocksNA)
+saveRDS(FREPblocks, file = 'tmp/FREPblocks')
+
+#CGL wetlands
+CGLpoints <- st_read(file.path(CGLDir, "CGL.gpkg")) %>%
+  st_transform(st_crs(ESI))
+saveRDS(CGLpoints, file = 'tmp/CGLpoints')
+
 } else {
   vri <- readRDS(file = 'tmp/vri')
   ws <- readRDS(file = 'tmp/ws')
@@ -251,5 +299,6 @@ saveRDS(RoadKisp, file = 'tmp/RoadKisp')
   ESI_LBN <-readRDS(file='tmp/ESI_LBN')
   ESI_Gitxsan <-readRDS(file='tmp/ESI_Gitxsan')
   ESI_Gitanyow <-readRDS(file='tmp/ESI_Gitanyow')
+  FREPblocks <-readRDS(file='tmp/FREPblocks')
 }
 

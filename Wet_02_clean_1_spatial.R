@@ -83,7 +83,7 @@ road_aoi <- st_buffer(roads_keep, dist = 500) %>%
   mutate(kmRd=1)
 
 saveRDS(road_aoi, file = 'tmp/AOI/road_aoi')
-#road_aoi<-readRDS(file = 'tmp/AOI/road_aoi')
+road_aoi<-readRDS(file = 'tmp/AOI/road_aoi')
 
 #Clip wetlands by AOI
 #Need to set wet_id to link back to data after st_intersects
@@ -93,16 +93,16 @@ Wetlands <- readRDS(file = 'tmp/Wetlands') %>%
 
 Wetlands <- Wetlands %>%
   mutate(wet_id=as.numeric(rownames(Wetlands)))
-saveRDS(Wetlands, file = 'tmp/AOI/Wetlands')
-#Wetlands<-readRDS(file = 'tmp/AOI/Wetlands')
+saveRDS(Wetlands, file = 'tmp/AOI/Wetlands1')
+#Wetlands<-readRDS(file = 'tmp/Wetlands')
 
 #wetlands close to road
-wetlandRoad <-st_intersection(Wetlands, road_aoi)
-wetlandRoad<- wetlandRoad %>%
-  mutate(wet_id=as.numeric(rownames(wetlandRoad)))
+#wetlandRoad <-st_intersection(Wetlands, road_aoi)
+#wetlandRoad<- wetlandRoad %>%
+#  mutate(wet_id=as.numeric(rownames(wetlandRoad)))
 
-write_sf(wetlandRoad, file.path(spatialOutDir,"wetlandRoad.gpkg"))
-#wetlandRoad<-st_read(file.path(spatialOutDir,"wetlandRoad.gpkg"))
+#write_sf(wetlandRoad, file.path(spatialOutDir,"wetlandRoad.gpkg"))
+wetlandRoad<-st_read(file.path(spatialOutDir,"wetlandRoad.gpkg"))
 #all wetlands but with 1km buffer
 wetRoadDat<-wetlandRoad %>%
   st_drop_geometry() %>%
@@ -111,7 +111,7 @@ wetRoadDat<-wetlandRoad %>%
 Wetlands <- Wetlands %>%
   left_join(wetRoadDat)
 Wetlands$kmRd[is.na(Wetlands$kmRd)]<-0
-saveRDS(Wetlands, file = 'tmp/AOI/Wetlands')
+saveRDS(Wetlands, file = 'tmp/AOI/Wetlands1')
 
 #Generate an ESI Wetlands point coverage
 wetlandsXY <- st_centroid(Wetlands)
@@ -129,10 +129,10 @@ write_sf(waterpt, file.path(spatialOutDir,"waterpt.gpkg"))
 
 #mapview(roads_sf)+mapview(road_aoi)+mapview(Wetlands)
 
-vri <- readRDS(file = 'tmp/vri') %>%
-  st_buffer(0) %>%
-  st_intersection(AOI)
-saveRDS(vri, file = 'tmp/AOI/vri')
+#vri <- readRDS(file = 'tmp/vri') %>%
+#  st_buffer(0) %>%
+#  st_intersection(AOI)
+#saveRDS(vri, file = 'tmp/AOI/vri')
 vri<-readRDS(file = 'tmp/AOI/vri')
 #ws <- readRDS(file = 'tmp/ws') %>%
 #  st_intersection(AOI)
@@ -232,9 +232,25 @@ ESI_LBN <-readRDS(file='tmp/ESI_LBN') %>%
 ESI_Gitxsan <-readRDS(file='tmp/ESI_Gitxsan') %>%
   st_set_crs(3005) %>%
   st_intersection(AOI)
+ESI_Gitxsan_wshd <-readRDS(file='tmp/ESI_Gitxsan_wshd') %>%
+  st_set_crs(3005) %>%
+  st_intersection(AOI)
 ESI_Gitanyow <-readRDS(file='tmp/ESI_Gitanyow') %>%
   st_set_crs(3005) %>%
   st_intersection(AOI)
+FN_boundaries <-readRDS(file='tmp/FN_boundaries') %>%
+  st_set_crs(3005) %>%
+  st_intersection(AOI)
+saveRDS(FN_boundaries, file='tmp/AOI/FN_boundaries')
+
+FREPblocks <-readRDS(file='tmp/FREPblocks') %>%
+  st_intersection(AOI)
+saveRDS(FREPblocks, file='tmp/AOI/FREPblocks')
+write_sf(FREPblocks, file.path(spatialOutDir,"FREPblocks.gpkg"))
+
+CGLpoints <-readRDS(file='tmp/CGLpoints') %>%
+  st_intersection(AOI)
+saveRDS(CGLpoints, file='tmp/AOI/CGLpoints')
 
 
 gc()

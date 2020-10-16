@@ -10,9 +10,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
+#Generates 2019 report card from plot data
 
-#Read ins 2020 samples
-SampleStrataS<-readRDS(file='tmp/AOI/SampleStrataS')
+SampleStrata2019<-readRDS(file='tmp/AOI/SampleStrata2019')
 
 #Use a function to get #categories, #wets
 RequireFn <- function(dataset, RequireNIn){
@@ -26,11 +26,13 @@ RequireFn <- function(dataset, RequireNIn){
 }
 
 #Make a list of what attributes to populate the score card and feed funtion
-requs<-data.frame(ReqN=c(1,2,3,4,5,6,7,8,9),
-                  Req=c('StrataGroup','House_Name','Verticalflow',
+requs<-data.frame(ReqN=c(1,2,3,4,5,6,7,8,9,10),
+                  Req=c('StrataGroup','WatershedID','House_Name','Verticalflow',
                         'Bidirectional','Throughflow', 'Outflow', 'Inflow',
                         'LanCoverLabel', 'DisturbType'))
-df<-lapply(requs[,1], function(i) RequireFn(SampleStrataS, i))
-ScoreCard2020<-ldply(df,data.frame)
 
-saveRDS(ScoreCard2020, file = 'tmp/AOI/ScoreCard2020')
+df<-lapply(requs[,1], function(i) RequireFn(SampleStrata2019, i))
+ScoreCard2019<-ldply(df,data.frame)
+
+saveRDS(ScoreCard2019, file = 'tmp/AOI/ScoreCard2019')
+

@@ -10,9 +10,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
-source ('header.R')
-SampleStrata<-readRDS(file='tmp/AOI/SampleStrata')
-wet_site2019<-readRDS(file='tmp/AOI/wet_site2019')
+
+# For dropping sample records and re-picking so requirements still met
+
+#Read ins 2020 samples
+SampleStrataS<-readRDS(file='tmp/AOI/SampleStrataS')
+Wet_sampledS<-readRDS(file='tmp/AOI/Wet_sampledS')
+
+nrow(subset(SampleStrataS, Sampled==1))
+
+#Set record to not sampled
+WetFix<-46445
 
 #Use a function to get #categories, #wets
 RequireFn <- function(dataset, RequireNIn){
@@ -34,18 +42,20 @@ requs<-data.frame(ReqN=c(1,2,3,4,5,6,7,8),
 #Set variables
 j<-1
 NWetsToSample<-100
-Wet_sampledR<-wet_site2019
-#Updated sampled with what has been sampled and set rest to 0
-SampleStrataR$Sampled <- Wet_sampledR[match(SampleStrataR$Wetland_Co, Wet_sampledR$Wetland_Co),2]
-SampleStrataR[is.na(SampleStrataR)] <- 0
+#Remove wetland so can re-select
+Wet_sampledFix<- Wet_sampledS %>%
+  dplyr::filter(Wetland_Co != WetFix)
 
-nrow(subset(SampleStrataR, Sampled==1))
+SampleStrataFix<-SampleStrataS
+SampleStrataFix$Sampled <- ifelse(SampleStrataFix$Wetland_Co==WetFix, 0, SampleStrataFix$Sampled)
+
+nrow(subset(SampleStrataFix, Sampled==1))
 
 NReplicates<-3
 minSampled<-1
 #Initialize a score card listing what requirement has been sampled
-df<-lapply(requs[,1], function(i) RequireFn(SampleStrataR, i))
-ScoreCardR<-ldply(df,data.frame)
+df<-lapply(requs[,1], function(i) RequireFn(SampleStrataFix, i))
+ScoreCardFix<-ldply(df,data.frame)
 
 #Loop through till NReplicates is met for all requirements
 while (minSampled < NReplicates) {
@@ -53,13 +63,13 @@ while (minSampled < NReplicates) {
 
   #Remove wetlands already sampled from the SampleStrata pool
   #and those far from roads
-  SampleStrataPool <- SampleStrataR %>%
+  SampleStrataPool <- SampleStrataFix %>%
     filter(Sampled ==0) %>%
     filter(Sampled < NReplicates) %>%
     filter(kmRd==1)
 
   #Take least common attribure of score card that hasnt been sampled at least 2 times for sampling
-  NewSampIn <- ScoreCardR %>%
+  NewSampIn <- ScoreCardFix %>%
     filter(nSampled < NReplicates) %>%
     filter(rank(nWets,ties.method="first")==1)
   #Now join with SampleStrata to get all the attributes
@@ -69,25 +79,26 @@ while (minSampled < NReplicates) {
     dplyr::sample_n(1) %>%
     mutate(Sampled=1) %>%
     #dplyr::select(Wetland_Co, Sampled, kmRd, StrataGroup, House_Name, Dist_to_Road, BEC, FlowCode, Verticalflow, LanCoverLabel, DisturbType)
-  dplyr::select(Wetland_Co, Sampled, kmRd, StrataGroup, House_Name, Dist_to_Road, BEC,
-                FlowCode, Verticalflow, Bidirectional,Throughflow, Outflow, Inflow,
-                LanCoverLabel, DisturbType)
+    dplyr::select(Wetland_Co, Sampled, kmRd, StrataGroup, House_Name, Dist_to_Road, BEC,
+                  FlowCode, Verticalflow, Bidirectional,Throughflow, Outflow, Inflow,
+                  LanCoverLabel, DisturbType)
   #Add to already selected wetlands
-  Wet_sampledR <- rbind(Wet_sampledR,NewSample)
-  SampleStrataR$Sampled <- Wet_sampledR[match(SampleStrataR$Wetland_Co, Wet_sampledR$Wetland_Co),2]
-  SampleStrataR[is.na(SampleStrataR)] <- 0
+  Wet_sampledFix <- rbind(Wet_sampledFix,NewSample)
+  SampleStrataFix$Sampled <- Wet_sampledFix[match(SampleStrataFix$Wetland_Co,
+                                                Wet_sampledFix$Wetland_Co),2]
+  SampleStrataFix[is.na(SampleStrataFix)] <- 0
 
   #Regenerate the score card
-  df<-lapply(requs[,1], function(i) RequireFn(SampleStrataR, i))
-  ScoreCardR<-ldply(df,data.frame)
+  df<-lapply(requs[,1], function(i) RequireFn(SampleStrataFix, i))
+  ScoreCardFix<-ldply(df,data.frame)
 
-  minSampled<-min(ScoreCardR$nSampled)
-#get another wetland to sample
+  minSampled<-min(ScoreCardFix$nSampled)
+  #get another wetland to sample
 }
 
 #data check
-nrow(subset(SampleStrataR, Sampled==1))
-tt<-(subset(SampleStrataR, Sampled==1))
+nrow(subset(SampleStrataFix, Sampled==1))
 
-saveRDS(Wet_sampledR, file = 'tmp/AOI/Wet_sampledR')
-saveRDS(SampleStrataR, file = 'tmp/AOI/SampleStrataR')
+saveRDS(Wet_sampledFix, file = 'tmp/AOI/Wet_sampledFix')
+saveRDS(SampleStrataFix, file = 'tmp/AOI/SampleStrataFix')
+

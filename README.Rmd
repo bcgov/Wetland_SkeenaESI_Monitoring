@@ -17,13 +17,14 @@ knitr::opts_chunk$set(
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Wetland_SkeenaESI_Monitoring
-This repository presents 3 analysis; 1) Set of scripts that read in the Skeena East Environmental Stewardship Initiative's (ESI) Wetland Ecosystem Services Protocol (WESP) field cards, cleanup and summarise; 2) Generate a list of potential 2020 wetlands to sample, stratified on Biogeoclimatic Ecosystem Classification (BEC) groups and two
-wetland flow characterizations - connected to water or unconnected; and 3) compiles Tier 1.5 wetland Climate BC data for wetlands and landform position.
+This repository presents 3 analysis; 1) Set of scripts that read in the Skeena East Environmental Stewardship Initiative's (ESI) Wetland Ecosystem Services Protocol (WESP) 2019 field cards, cleanup and summarize; 2) Generate a list of potential 2020 wetlands to sample, stratified based on groupings of Biogeoclimatic Ecosystem Classification (BEC) zones and selected to capture range of wetland flow characterizations, adjacent land type and disturbance; and 3) compiles Tier 1.5 wetland date, specifically indicators downloaded from Climate BC and landform position.
 
 ### Data
-Field data was collected in 2019 by Skeena East ESI crews. Paper forms were transfered into excel spreadsheets.
+Field data was collected in 2019 by Skeena East ESI crews. Paper forms were transferred onto excel spreadsheets.
 
-Data on wetlands was collated by Jesse Fraser using provincial inventory. Skeena-Stikine FLNRORD District office supplied an updated roads layer. 
+Data on wetlands was collated by Jesse Fraser using provincial and regional inventory. Skeena-Stikine FLNRORD District office supplied an updated roads layer - available upon request.
+
+Raster Land type, forest age and human footprint ESI specific layers used in this analysis are also available upon request
 
 ClimateBC variables - http://climatebc.ca
 
@@ -31,35 +32,45 @@ Landform data from Adaptwest's landfacets https://adaptwest.databasin.org/pages/
 
 
 ### Usage
-There are three sets of scripts that are contained in the repo, they need to be run in order, note there is some duplication between sets:
+There are three sets of scripts that are contained in the repo, they need to be run in order, note there is some duplication between sets*:
 
 Plot Data processing:
 
-- 01_load_plot_data.R
-- 02_clean_plot_data.R
-- 03_analysis_samplePrep.R
-- 03_analysis_sample2019.R
+- plot_01_load_2019.R
+- plot_02_clean_data.R
+- data is then passed to Wet_03_analysis_6_samplePrep.R
 
 Sample selection:
 
-- 01_load_spatial.R
-- 02_clean_spatial.R 
-- 03_analysis_BECStrata.R
-- 03_analysis_FlowStrata.R
-- 03_analysis_LandTypeStrataN.R
-- 03_analysis_DisturbanceStrataN.R
-- 03_analysis_samplePrep.R
-- 03_analysis_sampleAdminUnits.R
-- 03_analysis_sampleRequirements.R
-- 03_analysis_sampleAddStrata.R
-- 03_analysis_sample2020Summary.R
-- 04_output.R
+- Wet_01_load_spatial.R*
+- Wet_02_clean_1_spatial.R*
+- Wet_02_clean_2_spatial_AddWshds.R
+- Wet_02_clean_3_spatial_AddFREP.R
+- Wet_02_clean_4_spatial_AddCGL.R
+- Wet_03_analysis_1_AdminUnits.R
+- Wet_03_analysis_2_BECStrata.R
+- Wet_03_analysis_3_FlowStrata.R
+- Wet_03_analysis_4_LandTypeStrataN.R
+- Wet_03_analysis_5_DisturbanceStrataN.R
+- Wet_03_analysis_6_samplePrep.R
+- Wet_03_analysis_7_2019_ReportCard.R
+- Wet_03_analysis_8_sampleRequirements.R
+- Wet_03_analysis_9_sampleAddStrata.R
+- Wet_03_analysis_10_2020_ReportCard.R
+- Wet_03_analysis_11_sample2020PickNewSite.R
+- Wet_03_analysis_12_2020SiteAdjust.R
+- Wet_03_analysis_13_sample2020RevisedSummary.R
+- Wet_04_output_1.R*
+- Wet_04_output_2.R
 
-Tier 1.5 wetalnd data:
+Tier 1.5 wetland data:
 
-- 01_load_spatial.R
-- 02_clean_spatial.R 
-- 03_analysis_15Data.R
+- Wet_01_load_spatial.R*
+- Wet_02_clean_1_spatial.R*
+- Tier1.5_03_analysis.R
+- Wet_04_output_1.R*
+
+*used for multipled tasks
 
 ### Project Status
 This project is part of Skeena East ESI a collaboration of Skeena First Nations and the Provincial Government.
